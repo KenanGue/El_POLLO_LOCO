@@ -23,8 +23,11 @@ class World {
         this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addToMap(this.character);
+        if (this.character.x < this.level.enemies[this.level.enemies.length - 1].x - 500) {
+            this.addObjectsToMap(this.level.enemies.filter(enemy => !(enemy instanceof Endboss)));
+        }
         this.addObjectsToMap(this.level.clouds);
-        this.addObjectsToMap(this.level.enemies);
+        this.addToMap(this.level.enemies[this.level.enemies.length - 1]);
         this.ctx.translate(-this.camera_x, 0);
         let self = this;
         requestAnimationFrame(function() {
@@ -39,16 +42,18 @@ class World {
     }
 
     addToMap(mo) {
-        if (mo.otherDirection) {
-            this.ctx.save();
-            this.ctx.translate(mo.width, 0);
-            this.ctx.scale(-1, 1);
-            mo.x = mo.x * -1;
-        }
-        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
-        if (mo.otherDirection) {
-            mo.x = mo.x * -1;
-            this.ctx.restore();
+        if (mo && mo.img && mo.img.complete) { 
+            if (mo.otherDirection) {
+                this.ctx.save();
+                this.ctx.translate(mo.width, 0);
+                this.ctx.scale(-1, 1);
+                mo.x = mo.x * -1;
+            }
+            this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+            if (mo.otherDirection) {
+                mo.x = mo.x * -1;
+                this.ctx.restore();
+            }
         }
     }
 }
