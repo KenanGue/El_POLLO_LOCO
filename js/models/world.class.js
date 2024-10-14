@@ -12,10 +12,21 @@ class World {
         this.keyboard = keyboard;
         this.draw();
         this.setWorld();
+        this.checkCollisions();
     }
 
     setWorld() {
         this.character.world = this;
+    }
+
+    checkCollisions() {
+        setInterval(() => {
+            this.level.enemies.forEach((enemy) => {
+                if (this.character.isColliding(enemy)) {
+                    console.log('Collision with Character ', enemy);
+                }
+            });
+        }, 2000);
     }
 
     draw() {
@@ -30,7 +41,7 @@ class World {
         this.addToMap(this.level.enemies[this.level.enemies.length - 1]);
         this.ctx.translate(-this.camera_x, 0);
         let self = this;
-        requestAnimationFrame(function() {
+        requestAnimationFrame(function () {
             self.draw();
         })
     }
@@ -42,18 +53,27 @@ class World {
     }
 
     addToMap(mo) {
-        if (mo && mo.img && mo.img.complete) { 
-            if (mo.otherDirection) {
-                this.ctx.save();
-                this.ctx.translate(mo.width, 0);
-                this.ctx.scale(-1, 1);
-                mo.x = mo.x * -1;
-            }
-            this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
-            if (mo.otherDirection) {
-                mo.x = mo.x * -1;
-                this.ctx.restore();
-            }
+        if (mo.otherDirection) {
+            this.flipImage(mo);
         }
+
+        mo.draw(this.ctx);
+        mo.drawFrame(this.ctx);
+
+        if (mo.otherDirection) {
+            this.flipImageBack(mo);
+        }
+    }
+
+    flipImage(mo) {
+        this.ctx.save();
+        this.ctx.translate(mo.width, 0);
+        this.ctx.scale(-1, 1);
+        mo.x = mo.x * -1;
+    }
+
+    flipImageBack(mo) {
+        mo.x = mo.x * -1;
+        this.ctx.restore();
     }
 }
