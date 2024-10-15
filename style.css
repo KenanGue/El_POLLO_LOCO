@@ -1,7 +1,12 @@
 body {
+    height: 100vh;
+    margin: 0;
     display: flex;
+    justify-content: center;
     flex-direction: column;
     align-items: center;
+    background-image: url('img/desert.png');
+    background-position: center;
 }
 
 canvas {
