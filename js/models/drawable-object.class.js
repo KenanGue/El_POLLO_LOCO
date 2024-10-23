@@ -11,7 +11,6 @@ class DrawableObject {
         this.img = new Image();
         this.img.src = path;
         this.img.onload = () => {
-            console.log('Image loaded: ' + path);
         };
         this.img.onerror = () => {
             console.error('Error loading image: ' + path);
@@ -27,9 +26,9 @@ class DrawableObject {
     }
 
     drawFrame(ctx) {
-        if (this instanceof Character || this instanceof Chicken || this instanceof SmallChicken) {
+        if (this instanceof Character || this instanceof Chicken || this instanceof SmallChicken || this instanceof CollectibleObjects) {
             ctx.beginPath();
-            ctx.lineWidth = '5';
+            ctx.lineWidth = '3';
             ctx.strokeStyle = 'blue';
             ctx.rect(this.x, this.y, this.width, this.height);
             ctx.stroke();
@@ -42,10 +41,8 @@ class DrawableObject {
             img.src = path;
             this.imageCache[path] = img;
             img.onload = () => {
-                console.log('Image loaded into cache: ' + path);
             };
             img.onerror = () => {
-                console.error('Error loading image into cache: ' + path);
             };
         });
     }
