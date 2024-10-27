@@ -8,8 +8,9 @@ class World {
     statusBarHealth = new StatusBar('health');
     statusBarCoins = new StatusBar('coin');
     statusBarBottles = new StatusBar('bottle');
+    statusBarEndboss = new StatusBar('endboss');
     throwableObjects = [];
-    chickenGenerationEnabled = true;
+    bottleThrown = false;  // Neues Flag, um zu überprüfen, ob bereits eine Flasche geworfen wurde
     collectibles = [];
     collectedBottles = 0;
 
@@ -32,48 +33,86 @@ class World {
         setInterval(() => {
             this.checkCollisions();
             this.checkThrowObjects();
-        }, 1000);
+        }, 1000 / 60);  // Setze auf 60 FPS für flüssigere Kollisionsüberprüfung
     }
 
     checkThrowObjects() {
-        if (this.keyboard.D) {
+        if (this.keyboard.D && !this.bottleThrown) {  // Prüfe, ob eine Flasche geworfen wurde
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
+            this.bottleThrown = true;  // Setze das Flag auf true, wenn eine Flasche geworfen wird
+
+            // Entferne die Flasche nach der Splash-Animation oder wenn sie aus dem Bildschirm ist
+            setTimeout(() => {
+                this.bottleThrown = false;  // Setze das Flag auf false, nachdem die Flasche entfernt wurde
+            }, 1000);  // 1 Sekunde, bis die Flasche weg ist (anpassen je nach Spielanforderungen)
         }
     }
 
     checkCollisions() {
-        // Überprüfe Kollisionen mit Feinden (Chickens und Endboss)
-        this.level.enemies.forEach((enemy) => {
-            if (this.character.isColliding(enemy)) {
-                this.character.hit();
-                this.statusBarHealth.setPercentage(this.character.energy);
+        // 1. Überprüfe Kollisionen mit Feinden (Hühner und Endboss)
+        this.level.enemies.forEach((enemy, enemyIndex) => {
+            if (enemy instanceof Endboss) {
+                enemy.alertIfPlayerNearby(this.character);  // Überprüfe, ob der Endboss den Spieler entdeckt
+            }
+    
+            // Überprüfe Kollision zwischen Charakter und Feind (Endboss oder andere Feinde)
+            if (!enemy.isDead && this.character.isColliding(enemy)) {
+                if (enemy instanceof Chicken || enemy instanceof SmallChicken) {
+                    // Charakter ist von oben auf das Huhn gesprungen
+                    if (this.character.speedY < 0 && this.character.y + this.character.height * 0.9 < enemy.y) {
+                        enemy.die();  // Huhn stirbt, wenn der Charakter von oben springt
+                        setTimeout(() => {
+                            this.level.enemies.splice(enemyIndex, 1);  // Entferne das Huhn nach einer Sekunde
+                        }, 1000);
+                        this.character.jump();  // Der Charakter prallt nach dem Sprung ab
+                    } else {
+                        // Kollision von der Seite -> Charakter nimmt Schaden
+                        this.character.hit();
+                        this.statusBarHealth.setPercentage(this.character.energy);
+                    }
+                } else if (enemy instanceof Endboss) {
+                    // Kollision mit dem Endboss -> Charakter nimmt Schaden
+                    this.character.hit();
+                    this.statusBarHealth.setPercentage(this.character.energy);
+                }
             }
         });
     
-        // Überprüfe Kollisionen mit Flaschen
+        // 2. Überprüfe Kollisionen zwischen Flaschen und dem Endboss
+        this.throwableObjects.forEach((bottle, bottleIndex) => {
+            this.level.enemies.forEach((enemy) => {
+                if (bottle.isColliding(enemy) && enemy instanceof Endboss && !enemy.isDead()) {
+                    bottle.playSplashAnimation();  // Spiele die Splash-Animation der Flasche
+                    enemy.hit();  // Füge dem Endboss Schaden zu
+                    this.statusBarEndboss.setPercentage(enemy.energy);  // Aktualisiere die Statusleiste des Endbosses
+                    this.throwableObjects.splice(bottleIndex, 1);  // Entferne die Flasche nach dem Treffer
+                }
+            });
+        });
+    
+        // 3. Überprüfe Kollisionen mit Flaschen als sammelbare Objekte
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'bottle' && this.character.isColliding(collectible)) {
                 console.log('Flasche eingesammelt!');
-                this.statusBarBottles.collectItem();  // **Aktualisiere die Flaschen-Statusbar**
-                return false;  // **Entferne die Flasche**
+                this.statusBarBottles.collectItem();  // Aktualisiere die Flaschen-Statusbar
+                return false;  // Entferne die Flasche, wenn sie eingesammelt wurde
             }
             return true;
         });
     
-        // **Neue Kollisionserkennung für Münzen hinzufügen**
+        // 4. Überprüfe Kollisionen mit Münzen
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'coin' && this.character.isColliding(collectible)) {
                 console.log('Münze eingesammelt!');
-                this.statusBarCoins.collectItem();  // **Aktualisiere die Münzen-Statusbar**
-                return false;  // **Entferne die Münze**
+                this.statusBarCoins.collectItem();  // Aktualisiere die Münzen-Statusbar
+                return false;  // Entferne die Münze, wenn sie eingesammelt wurde
             }
             return true;
         });
     }
     
-
-
+    
     createCoins() {
         let totalDistance = 5000;  // Entfernung zum Endboss
         let numColletibles = 10;   // Anzahl der Coins
@@ -115,20 +154,27 @@ class World {
         this.addToMap(this.statusBarHealth);
         this.addToMap(this.statusBarCoins);
         this.addToMap(this.statusBarBottles);
+    
+        // Überprüfe, ob der Charakter den Endboss erreicht hat
+        let endboss = this.level.enemies[this.level.enemies.length - 1];  // Der Endboss ist der letzte Feind
+        if (this.character.x >= endboss.x - 700) {  // Wenn der Charakter nahe genug am Endboss ist
+            this.addToMap(this.statusBarEndboss);  // Statusleiste des Endbosses anzeigen
+        }
+    
         this.ctx.translate(this.camera_x, 0);
-        this.addToMap(this.level.enemies[this.level.enemies.length - 1]); // Zeichne den Endboss
-
+        this.addToMap(endboss);  // Endboss zeichnen
+        
         // Entferne Chickens nur, wenn der Charakter den Endboss erreicht hat
-        if (this.character.x >= this.level.enemies[this.level.enemies.length - 1].x - 500) {
+        if (this.character.x >= endboss.x - 300) {
             this.chickenGenerationEnabled = false;  // Stoppe die Generierung neuer Chickens
-
+    
             // Entferne alle Chickens, sobald der Endboss sichtbar ist
             this.level.enemies = this.level.enemies.filter(enemy => enemy instanceof Endboss);
         } else {
             // Zeichne normale Feinde (Chickens) solange der Endboss nicht sichtbar ist
             this.addObjectsToMap(this.level.enemies.filter(enemy => !(enemy instanceof Endboss)));
         }
-
+    
         this.addObjectsToMap(this.throwableObjects);
         this.ctx.translate(-this.camera_x, 0);
         let self = this;
@@ -136,6 +182,7 @@ class World {
             self.draw();
         });
     }
+    
 
     addObjectsToMap(objects) {
         objects.forEach(o => {

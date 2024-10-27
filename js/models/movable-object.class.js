@@ -6,6 +6,7 @@ class MovableObject extends DrawableObject {
     acceleration = 2.5;
     energy = 100;
     lastHit = 0;
+    invulnerableDuration = 1000; 
 
     applyGravity() {
         setInterval(() => {
@@ -32,18 +33,22 @@ class MovableObject extends DrawableObject {
     }
 
     hit() {
-        this.energy -= 10;
-        if (this.energy < 0) {
-            this.energy = 0;
-        } else {
-            this.lastHit = new Date().getTime();
+        let currentTime = new Date().getTime();
+
+        // Prüfen, ob genug Zeit seit dem letzten Treffer vergangen ist (Unverwundbarkeitsphase)
+        if (currentTime - this.lastHit > this.invulnerableDuration) {
+            this.energy -= 10;  // Reduziere die Energie um 10 Punkte
+            if (this.energy < 0) {
+                this.energy = 0;
+            } else {
+                this.lastHit = currentTime;  // Setze den Zeitpunkt des letzten Treffers neu
+            }
         }
     }
     
     isHurt() {
         let timePassed = new Date().getTime() - this.lastHit;
-        timePassed = timePassed / 1000;
-        return timePassed < 1;
+        return timePassed / 1000 < 1;  // Rückgabe, ob der Charakter noch in der Unverwundbarkeitsphase ist
     }
     
     isDead() {
@@ -58,12 +63,15 @@ class MovableObject extends DrawableObject {
     }
 
     moveRight() {
-        this.x += this.speed;
+        console.log("Moving right, speedX:", this.speedX);  // Debug-Meldung
+        this.x += this.speedX > 0 ? this.speedX : this.speed;
     }
 
     moveLeft() {
-        this.x -= this.speed;
+        console.log("Moving left, speedX:", this.speedX);  // Debug-Meldung
+        this.x -= this.speedX > 0 ? this.speedX : this.speed;
     }
+
 
     jump() {
         this.speedY = 30;

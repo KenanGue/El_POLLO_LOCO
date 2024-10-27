@@ -26,6 +26,15 @@ class StatusBar extends DrawableObject {
         'img/7_statusbars/1_statusbar/3_statusbar_bottle/orange/100.png'
     ];
 
+    IMAGES_ENDBOSS = [
+        'img/7_statusbars/2_statusbar_endboss/green/green0.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green20.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green40.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green60.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green80.png',
+        'img/7_statusbars/2_statusbar_endboss/green/green100.png'
+    ];
+
     percentage = 100;  // Initialer Wert für Health, Coins und Bottles beginnen bei 0
     type;              // Typ der Statusleiste ('health', 'coin', 'bottle')
     maxItems;          // Maximale Anzahl an Items (nur für Münzen und Flaschen relevant)
@@ -52,6 +61,11 @@ class StatusBar extends DrawableObject {
             this.setPercentage(0);  // Flaschen starten bei 0%
             this.x = 40;
             this.y = 120;  // Bottle-Statusbar ist unter der Coin-Statusbar
+        } else if (type === 'endboss') {
+            this.loadImages(this.IMAGES_ENDBOSS);
+            this.setPercentage(100);  // Endboss startet bei 100%
+            this.x = 480;  // Setze x für rechte Seite (je nach Canvas-Breite anpassen)
+            this.y = 5;    // Setze y für obere Ecke
         }
 
         this.width = 200;
@@ -69,35 +83,39 @@ class StatusBar extends DrawableObject {
 
     // Setze den Prozentsatz und aktualisiere das Bild der Statusleiste
     setPercentage(percentage) {
-        this.percentage = percentage;
+        this.percentage = Math.max(0, Math.min(percentage, 100));  // Sicherstellen, dass der Wert zwischen 0 und 100 bleibt
+    
         let path;
-
-        // Wähle das Bild basierend auf dem Typ der Statusleiste (Health, Coin, Bottle)
+    
+        // Wähle das Bild basierend auf dem Typ der Statusleiste
         if (this.type === 'health') {
             path = this.IMAGES_HEALTH[this.resolveImageIndex()];
         } else if (this.type === 'coin') {
             path = this.IMAGES_COIN[this.resolveImageIndex()];
         } else if (this.type === 'bottle') {
             path = this.IMAGES_BOTTLE[this.resolveImageIndex()];
+        } else if (this.type === 'endboss') {
+            path = this.IMAGES_ENDBOSS[this.resolveImageIndex()];
         }
-
-        this.img = this.imageCache[path];  // Lade das entsprechende Bild aus dem Cache
+    
+        // Lade das entsprechende Bild nur dann, wenn sich der Wert geändert hat
+        if (this.img !== this.imageCache[path]) {
+            this.img = this.imageCache[path];  // Aktualisiere das Bild nur bei Bedarf
+        }
     }
-
+    
+    
     // Berechne den Bildindex basierend auf dem aktuellen Prozentsatz
     resolveImageIndex() {
-        if (this.percentage == 100) {
-            return 5;
-        } else if (this.percentage > 80) {
-            return 4;
-        } else if (this.percentage > 60) {
-            return 3;
-        } else if (this.percentage > 40) {
-            return 2;
-        } else if (this.percentage > 20) {
-            return 1;
-        } else {
-            return 0;
+        const thresholds = [0, 20, 40, 60, 80, 100];  // Definierte Schwellenwerte für die Prozentstufen
+        for (let i = thresholds.length - 1; i >= 0; i--) {
+            if (this.percentage >= thresholds[i]) {
+                return i;  // Gib den Index des Bildes zurück, basierend auf der Schwelle
+            }
         }
+        return 0;  // Fallback auf 0, wenn die Energie unter dem ersten Schwellenwert liegt
     }
+    
+    
+    
 }

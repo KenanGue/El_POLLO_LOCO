@@ -6,6 +6,12 @@ class Chicken extends MovableObject {
         'img/3_enemies_chicken/chicken_normal/1_walk/2_w.png',
         'img/3_enemies_chicken/chicken_normal/1_walk/3_w.png'
     ];
+    IMAGES_DEAD = [
+        'img/3_enemies_chicken/chicken_normal/2_dead/dead.png'
+    ];
+    isDead = false;
+    moveInterval;  // Speichert das Bewegungsintervall
+    animationInterval;  // Speichert das Animationsintervall
 
     constructor(xPosition) {
         super();
@@ -18,14 +24,25 @@ class Chicken extends MovableObject {
     }
 
     animate() {
-        setInterval(() => {
-            this.moveLeft();
+        this.moveInterval = setInterval(() => {
+            if (!this.isDead) {
+                this.moveLeft();
+            }
         }, 1000 / 60);
 
-        setInterval(() => {
-            this.playAnimation(this.IMAGES_WALKING);
+        this.animationInterval = setInterval(() => {
+            if (!this.isDead) {
+                this.playAnimation(this.IMAGES_WALKING);
+            }
         }, 150);
-        this.moveLeft();
     }
 
+    die() {
+        this.isDead = true;  // Setze das Huhn auf "tot"
+        this.loadImage(this.IMAGES_DEAD[0]);  // Wechsle zur "tot"-Animation
+
+        // Stoppe alle laufenden Intervalle
+        clearInterval(this.moveInterval);
+        clearInterval(this.animationInterval);
+    }
 }
