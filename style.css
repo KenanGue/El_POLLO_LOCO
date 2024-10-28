@@ -1,6 +1,6 @@
 @font-face {
-    font-family: 'danfo';
-    src: url('/fonts/danfo.ttf');
+    font-family: 'western';
+    src: url('/fonts/western.TTF');
 }
 
 body {
@@ -12,7 +12,7 @@ body {
     align-items: center;
     background-image: url('img/desert.png');
     background-position: center;
-    font-family: danfo;
+    font-family: western;
 }
 
 h1 {
@@ -26,11 +26,75 @@ canvas {
 }
 
 .startButton {
-    display: none; 
+    width: 120px;
+    height: 40px;
+    margin-top: 16px;
     font-size: 24px;
+    background-color: #FFA500;
+    /* Orange-Gelb, wie die Schrift im Bild */
+    color: black;
+    /* Schwarzer Text */
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    /* Abgerundete Ecken */
+    font-family: western;
+    /* Gleiche Schriftart wie im Bild */
+}
+
+.startButton:hover {
+    font-size: 28px;
+    color: white;
 }
 
 .content-position {
     display: flex;
     flex-direction: column;
+}
+
+.button-position {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.soundButton {
+    width: 50px;
+    height: 40px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.soundButton img {
+    width: 100%;
+    height: 100%;
+}
+
+.soundButton:hover {
+    filter: invert();
+}
+
+.back-button {
+    width: 58px;
+    height: 58px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.back-button img {
+    width: 100%;
+    height: 100%;
+}
+
+.back-button:hover {
+    filter: invert();
+}
+
+.setting-buttons {
+    display: flex;
+    align-items: center;
+    margin-top: 16px;
 }

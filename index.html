@@ -27,16 +27,28 @@
 
 <body onload="init()">
 
-    <h1>El pollo loco</h1>
+    <h1>EL POLLO LOCO</h1>
     <div class="content-position">
-        
-            <canvas id="canvas" width="720" height="480"></canvas>
-        
-        
+        <canvas id="canvas" width="720" height="480"></canvas>
+        <div class="button-position">
             <button id="startButton" class="startButton" onclick="startGame()">Start</button>
-        
+            <button id="startButton" class="startButton" onclick="startGame()">Gameplay</button>
+            <button id="startButton" class="startButton" onclick="startGame()">Impressum</button>
+            <div class="setting-buttons">
+            <button id="soundButton" class="soundButton">
+                <img id="soundIcon" src="img/icons/volume.png" alt="Sound On">
+            </button>
+            <button id="backToStart" class="back-button">
+                <img id="backIcon" src="img/icons/back-arrow.png">
+            </button>
+        </div>
+        </div>
     </div>
-
+    <!-- Füge das Audio-Element zum HTML-Dokument hinzu -->
+<audio id="backgroundAudio" loop>
+    <source src="audio/background-music.mp3" type="audio/mpeg">
+    Dein Browser unterstützt keine Audiodateien.
+</audio>
 
 </body>
 

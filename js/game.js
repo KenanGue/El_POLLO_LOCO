@@ -1,17 +1,18 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
-let intro = 'img/9_intro_outro_screens/start/startscreen_1.png';  // Pfad als String
+let isMuted = false;  // Status für Stummschaltung
 
 function init() {
     canvas = document.getElementById('canvas');
     showIntro();  // Zeige das Intro beim Start der Seite
+    setupSoundButton();  // Setze den Sound-Button auf
 }
 
 function showIntro() {
     let ctx = canvas.getContext('2d');
     let introImage = new Image();
-    introImage.src = intro;
+    introImage.src = 'img/9_intro_outro_screens/start/startscreen_1.png';
 
     introImage.onload = () => {
         // Zeige das Intro-Bild auf dem Canvas an
@@ -25,9 +26,65 @@ function showIntro() {
 function startGame() {
     // Verstecke den Start-Button und starte das Spiel
     document.getElementById('startButton').style.display = 'none';
-    world = new World(canvas, keyboard);  // Initialisiere das Spiel
+    world = new World(canvas, keyboard);  // Initialisiere die World-Instanz
+    
+    // Starte die Hintergrundmusik nach Benutzerinteraktion
+    playBackgroundMusic();
 }
 
+function playBackgroundMusic() {
+    const audioElement = document.getElementById('backgroundAudio');
+    audioElement.play().catch(error => {
+        console.error('Autoplay wurde blockiert. Benutzerinteraktion erforderlich:', error);
+    });
+}
+
+function setupSoundButton() {
+    const soundButton = document.getElementById('soundButton');
+    
+    // Eventlistener für den Sound-Button
+    soundButton.addEventListener('click', toggleSound);
+}
+
+function toggleSound() {
+    const audioElement = document.getElementById('backgroundAudio');
+    const soundIcon = document.getElementById('soundIcon');
+
+    if (!audioElement) {
+        console.error('Audio-Element mit ID "backgroundAudio" wurde nicht gefunden.');
+        return;
+    }
+
+    isMuted = !isMuted;  // Umschalten des Mute-Status
+
+    // Hintergrundmusik umschalten
+    audioElement.muted = isMuted;
+
+    // Mute alle Charakter-Sounds, falls die world und der character bereits existieren
+    if (world && world.character) {
+        muteCharacterSounds(isMuted);
+    }
+
+    // Icon ändern
+    soundIcon.src = isMuted ? 'img/icons/volume-off.png' : 'img/icons/volume.png';
+}
+
+function muteCharacterSounds(mute) {
+    // Überprüfen, ob der Charakter bereits initialisiert ist
+    const character = world.character;
+    if (!character) {
+        console.error('Character wurde nicht gefunden.');
+        return;
+    }
+
+    // Mute alle relevanten Sound-Elemente des Charakters
+    character.walking_sound.muted = mute;
+    character.jumping_sound.muted = mute;
+    character.dead_sound.muted = mute;
+    character.hurt_sound.muted = mute;
+}
+
+// Tastatursteuerung (unverändert)
 window.addEventListener("keydown", (e) => {
     if (e.keyCode == 39) {
         keyboard.RIGHT = true;

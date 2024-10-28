@@ -58,7 +58,7 @@ class World {
     
             // Überprüfe Kollision zwischen Charakter und Feind (Endboss oder andere Feinde)
             if (!enemy.isDead && this.character.isColliding(enemy)) {
-                if (enemy instanceof Chicken || enemy instanceof SmallChicken) {
+                if (enemy instanceof Chicken || enemy instanceof SmallChicken || enemy instanceof Endboss ) {
                     // Charakter ist von oben auf das Huhn gesprungen
                     if (this.character.speedY < 0 && this.character.y + this.character.height * 0.9 < enemy.y) {
                         enemy.die();  // Huhn stirbt, wenn der Charakter von oben springt
