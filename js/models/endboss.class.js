@@ -67,7 +67,6 @@ class Endboss extends MovableObject {
         if (!this.isDead() && !this.hitAlready) {
             this.energy -= Math.min(20, this.energy);  // Reduziere die Energie, aber niemals mehr als die verbleibende Energie
             this.energy = Math.max(0, this.energy);  // Stelle sicher, dass die Energie nicht negativ wird
-            console.log(`Endboss getroffen! Aktuelle Energie: ${this.energy}`);
             this.hitAlready = true;
             this.changeState('hurt');  // Wechsel zu 'hurt'
             setTimeout(() => {
@@ -77,7 +76,6 @@ class Endboss extends MovableObject {
                 }
             }, 500);  // Nach 500ms wieder zurück zum "walking"-Zustand
         } else if (this.isDead()) {
-            console.log('Endboss ist bereits besiegt.');
         }
     }
 
@@ -143,13 +141,11 @@ class Endboss extends MovableObject {
 
     move() {
         if (this.direction === 'left') {
-            console.log("Endboss moving left from", this.x, "to", this.minX);
             this.moveLeft();
             if (this.x <= this.minX) {
                 this.direction = 'right';  // Richtung ändern, wenn die minimale Position erreicht wird
             }
         } else if (this.direction === 'right') {
-            console.log("Endboss moving right from", this.x, "to", this.maxX);
             this.moveRight();
             if (this.x >= this.maxX) {
                 this.direction = 'left';  // Richtung ändern, wenn die maximale Position erreicht wird
@@ -171,17 +167,10 @@ class Endboss extends MovableObject {
         if (!this.alertTriggered && Math.abs(this.x - player.x) < 700) {
             this.changeState('alert');
             this.alertTriggered = true;
-            console.log("Endboss in Alarmbereitschaft!");
 
             setTimeout(() => {
                 this.changeState('attack');  // Wechsel zu 'attack' nach Alert-Animation
-                console.log("Endboss greift an!");
             }, this.IMAGES_ALERT.length * 150);  // Wartezeit entsprechend der Alert-Animation
         }
-    }
-
-    removeFromWorld() {
-        console.log('Endboss ist tot und wird entfernt.');
-        // Logik, um den Endboss aus der Welt zu entfernen
     }
 }

@@ -24,3 +24,13 @@ h1 {
 canvas {
     background-color: black;
 }
+
+.startButton {
+    display: none; 
+    font-size: 24px;
+}
+
+.content-position {
+    display: flex;
+    flex-direction: column;
+}

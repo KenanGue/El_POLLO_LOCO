@@ -104,7 +104,6 @@ class World {
         // 4. Überprüfe Kollisionen mit Münzen
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'coin' && this.character.isColliding(collectible)) {
-                console.log('Münze eingesammelt!');
                 this.statusBarCoins.collectItem();  // Aktualisiere die Münzen-Statusbar
                 return false;  // Entferne die Münze, wenn sie eingesammelt wurde
             }
@@ -131,14 +130,32 @@ class World {
     createBottles() {
         let totalDistance = 4800;  // Entfernung zum Endboss
         let numBottles = 5;       // Anzahl der Flaschen
-        let groundY = 310;         // y-Position für die Flaschen (auf dem Boden)
-
+        let groundY = 310;        // y-Position für die Flaschen (auf dem Boden)
+    
         for (let i = 0; i < numBottles; i++) {
             let xPosition = (totalDistance / numBottles) * (i + 1);
-            // Füge Flaschen hinzu (mit 'bottle' als Typ)
             this.collectibles.push(new CollectibleObjects(xPosition, groundY, 'bottle'));
         }
+    
+        // Setze die maximale Anzahl der Flaschen in der Statusbar
+        this.statusBarBottles.maxItems = numBottles;
     }
+
+    checkThrowObjects() {
+        if (this.keyboard.D && !this.bottleThrown && this.statusBarBottles.currentItems > 0) {  // Prüfe, ob Flaschen übrig sind
+            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
+            this.throwableObjects.push(bottle);
+            this.bottleThrown = true;
+    
+            // Ziehe eine Flasche von der Statusleiste ab
+            this.statusBarBottles.useItem();  // Flasche aus der Statusbar entfernen
+    
+            setTimeout(() => {
+                this.bottleThrown = false;  // Setze das Flag auf false, nachdem die Flasche entfernt wurde
+            }, 1000);  // 1 Sekunde, bis die Flasche weg ist
+        }
+    }
+    
 
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);

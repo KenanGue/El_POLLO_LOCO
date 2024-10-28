@@ -63,18 +63,21 @@ class MovableObject extends DrawableObject {
     }
 
     moveRight() {
-        console.log("Moving right, speedX:", this.speedX);  // Debug-Meldung
         this.x += this.speedX > 0 ? this.speedX : this.speed;
     }
 
     moveLeft() {
-        console.log("Moving left, speedX:", this.speedX);  // Debug-Meldung
         this.x -= this.speedX > 0 ? this.speedX : this.speed;
     }
 
 
     jump() {
         this.speedY = 30;
+    }
+
+    removeFromWorld() {
+        // Beispielhafte Implementierung, um das Objekt aus der Spielwelt zu entfernen
+        this.markedForRemoval = true;  // Markiere das Objekt zur Entfernung
     }
 
 }

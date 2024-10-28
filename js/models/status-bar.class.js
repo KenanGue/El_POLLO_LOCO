@@ -81,6 +81,14 @@ class StatusBar extends DrawableObject {
         }
     }
 
+    useItem() {
+        if (this.currentItems > 0) {
+            this.currentItems--;  // Verringere die Anzahl der Flaschen
+            let percentage = (this.currentItems / this.maxItems) * 100;
+            this.setPercentage(percentage);  // Aktualisiere die Statusleiste basierend auf der verbleibenden Anzahl
+        }
+    }
+
     // Setze den Prozentsatz und aktualisiere das Bild der Statusleiste
     setPercentage(percentage) {
         this.percentage = Math.max(0, Math.min(percentage, 100));  // Sicherstellen, dass der Wert zwischen 0 und 100 bleibt
