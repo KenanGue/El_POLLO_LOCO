@@ -21,8 +21,8 @@
     <script src="js/models/level.class.js"></script>
     <script src="js/models/throwable-object.class.js"></script>
     <script src="js/models/endboss.class.js"></script>
-    <script src="js/levels/level1.js"></script>
-    <script src="js/game.js"></script>
+    <script  src="js/levels/level1.js"></script>
+    <script  src="js/game.js"></script>
 </head>
 
 <body onload="init()">
@@ -32,23 +32,85 @@
         <canvas id="canvas" width="720" height="480"></canvas>
         <div class="button-position">
             <button id="startButton" class="startButton" onclick="startGame()">Start</button>
-            <button id="startButton" class="startButton" onclick="startGame()">Gameplay</button>
-            <button id="startButton" class="startButton" onclick="startGame()">Impressum</button>
+            <button id="gameplayButton" class="startButton" onclick="openGameplayOverlay()">Gameplay</button>
+            <button id="impressumButton" class="startButton" onclick="openImpressumOverlay()">Impressum</button>
             <div class="setting-buttons">
+            <button id="reloadButton" class="reloadButton" onclick="setupReloadButton()">
+                <img id="reloadIcon"  src="img/icons/reload.png">
+            </button>
             <button id="soundButton" class="soundButton">
                 <img id="soundIcon" src="img/icons/volume.png" alt="Sound On">
             </button>
-            <button id="backToStart" class="back-button">
+            <button id="backToStart" class="backButton" onclick="backToStart()">
                 <img id="backIcon" src="img/icons/back-arrow.png">
             </button>
         </div>
         </div>
     </div>
-    <!-- Füge das Audio-Element zum HTML-Dokument hinzu -->
 <audio id="backgroundAudio" loop>
     <source src="audio/background-music.mp3" type="audio/mpeg">
-    Dein Browser unterstützt keine Audiodateien.
 </audio>
+
+<div id="gameplayOverlay" class="overlay" style="display: none;" onclick="closeGameplayOverlay(event)">
+    <div class="overlay-content">
+        <span class="close-btn" onclick="closeGameplayOverlay(event)">&times;</span>
+        <h3>Spielsteuerung</h3>
+        <p><strong>Bewegungen:</strong> Verwende die Pfeiltasten (← →), um den Charakter zu bewegen.</p>
+        <p><strong>Springen:</strong> Drücke die Leertaste.</p>
+        <p><strong>Werfen:</strong> Drücke die Taste "D" um zu werfen.</p>
+        <!-- Weitere Steuerungselemente hier aufführen -->
+    </div>
+</div>
+
+<div id="impressumOverlay" class="overlay" style="display: none;" onclick="closeImpressumOverlay(event)">
+    <div class="overlay-content">
+        <span class="close-btn" onclick="closeImpressumOverlay(event)">&times;</span>
+        <h2>Impressum</h2>
+<p><strong>Angaben gemäß § 5 TMG:</strong></p>
+<p>
+    Kenan Günes<br>
+    Salsastraße 12<br>
+    12345 Salsastadt<br>
+</p>
+
+<p><strong>Vertreten durch:</strong></p>
+<p>Kenan Günes</p>
+
+<p><strong>Kontakt:</strong></p>
+<p>
+    Telefon: +49 (0) 123 456789<br>
+    E-Mail: info@pepeloco.de
+</p>
+
+<p><strong>Umsatzsteuer-ID:</strong></p>
+<p>Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz: DE123456789</p>
+
+<p><strong>Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV:</strong></p>
+<p>
+    Kenan Günes<br>
+    Salsastraße 12<br>
+    12345 Salsastadt
+</p>
+
+<p><strong>Haftung für Inhalte</strong></p>
+<p>
+    Als Diensteanbieter sind wir gemäß § 7 Abs.1 TMG für eigene Inhalte auf diesen Seiten nach den allgemeinen Gesetzen verantwortlich.
+    Nach §§ 8 bis 10 TMG sind wir als Diensteanbieter jedoch nicht verpflichtet, übermittelte oder gespeicherte fremde Informationen
+    zu überwachen oder nach Umständen zu forschen, die auf eine rechtswidrige Tätigkeit hinweisen.
+</p>
+
+<p><strong>Haftung für Links</strong></p>
+<p>
+    Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben. Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.
+</p>
+
+<p><strong>Urheberrecht</strong></p>
+<p>
+    Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen Urheberrecht.
+</p>
+
+    </div>
+</div>
 
 </body>
 

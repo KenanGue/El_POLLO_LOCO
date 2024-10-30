@@ -137,8 +137,6 @@ class Endboss extends MovableObject {
         }
     }
     
-    
-
     move() {
         if (this.direction === 'left') {
             this.moveLeft();

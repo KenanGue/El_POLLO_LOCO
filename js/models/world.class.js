@@ -55,7 +55,15 @@ class World {
             if (enemy instanceof Endboss) {
                 enemy.alertIfPlayerNearby(this.character);  // Überprüfe, ob der Endboss den Spieler entdeckt
             }
+            if (!enemy.isDead && this.character.isColliding(enemy)) {
+                this.character.hit();
+                this.statusBarHealth.setPercentage(this.character.energy);
     
+                // Überprüfe, ob der Charakter tot ist
+                if (this.character.energy <= 0) {
+                    showGameOverScreen(); // Zeige Game Over Screen
+                }
+            }
             // Überprüfe Kollision zwischen Charakter und Feind (Endboss oder andere Feinde)
             if (!enemy.isDead && this.character.isColliding(enemy)) {
                 if (enemy instanceof Chicken || enemy instanceof SmallChicken || enemy instanceof Endboss ) {
