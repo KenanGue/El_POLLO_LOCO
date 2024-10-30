@@ -80,15 +80,13 @@ class Endboss extends MovableObject {
     }
 
     isDead() {
-        if (this.energy === 0 && this.currentState !== 'dead') {
-            this.changeState('dead');  // Wechsle in den Zustand 'dead'
-            setTimeout(() => {
-                // Entferne den Endboss nach der Sterbeanimation
-                this.removeFromWorld();
-            }, this.IMAGES_DEAD.length * 150);  // Warte, bis die Sterbeanimation vollständig abgespielt ist
+        if (this.energy <= 0 && this.currentState !== 'dead') {
+            this.changeState('dead');
+            setTimeout(() => this.removeFromWorld(), this.IMAGES_DEAD.length * 150);
         }
-        return this.energy === 0;
+        return this.energy <= 0;
     }
+    
 
     changeState(state) {
         this.currentState = state;

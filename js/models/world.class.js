@@ -53,15 +53,17 @@ class World {
         // 1. Überprüfe Kollisionen mit Feinden (Hühner und Endboss)
         this.level.enemies.forEach((enemy, enemyIndex) => {
             if (enemy instanceof Endboss) {
-                enemy.alertIfPlayerNearby(this.character);  // Überprüfe, ob der Endboss den Spieler entdeckt
-            }
-            if (!enemy.isDead && this.character.isColliding(enemy)) {
-                this.character.hit();
-                this.statusBarHealth.setPercentage(this.character.energy);
-    
-                // Überprüfe, ob der Charakter tot ist
-                if (this.character.energy <= 0) {
-                    showGameOverScreen(); // Zeige Game Over Screen
+                enemy.alertIfPlayerNearby(this.character);  // Überprüft, ob der Endboss in Angriffsmodus wechselt
+                
+                if (!enemy.isDead() && this.character.isColliding(enemy)) {
+                    // Der Charakter wird getroffen
+                    this.character.hit();
+                    this.statusBarHealth.setPercentage(this.character.energy);
+        
+                    // Game Over, falls Energie aufgebraucht ist
+                    if (this.character.energy <= 0) {
+                        showGameOverScreen();
+                    }
                 }
             }
             // Überprüfe Kollision zwischen Charakter und Feind (Endboss oder andere Feinde)
