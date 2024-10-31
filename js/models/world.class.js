@@ -14,6 +14,7 @@ class World {
     collectibles = [];
     collectedBottles = 0;
     showingWinScreen = false; 
+    showingGameOverScreen = false;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -25,6 +26,27 @@ class World {
         this.setWorld();
         this.run();
     }
+
+    showGameOverScreen() {
+        if (this.showingGameOverScreen) return;  // Verhindert mehrfachen Aufruf
+        this.showingGameOverScreen = true;
+    
+        console.log("Game-Over-Screen wird angezeigt");  // Überprüfen, ob die Methode aufgerufen wird
+    
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        let img = new Image();
+        img.src = 'img/9_intro_outro_screens/game_over/game over!.png';
+    
+        img.onload = () => {
+            let scaleFactor = 0.5;
+            let width = img.width * scaleFactor;
+            let height = img.height * scaleFactor;
+            let x = (this.canvas.width - width) / 2;
+            let y = (this.canvas.height - height) / 2;
+            this.ctx.drawImage(img, x, y, width, height);
+        };
+    }
+    
 
     showWinScreen() {
         if (this.showingWinScreen) return;  // Verhindert mehrfachen Aufruf
@@ -74,18 +96,25 @@ class World {
         // 1. Überprüfe Kollisionen mit Feinden (Hühner und Endboss)
         this.level.enemies.forEach((enemy, enemyIndex) => {
             if (enemy instanceof Endboss) {
-                enemy.alertIfPlayerNearby(this.character);  // Überprüft, ob der Endboss in Angriffsmodus wechselt
-
+                enemy.alertIfPlayerNearby(this.character);  // Endboss wechselt in Angriffsmodus, wenn der Spieler nahe ist
+                
                 if (!enemy.isDead() && this.character.isColliding(enemy)) {
                     // Der Charakter wird getroffen
                     this.character.hit();
                     this.statusBarHealth.setPercentage(this.character.energy);
+    
+                    // Zeige Game-Over-Screen, wenn die Energie auf 0 oder weniger fällt
+                    if (this.character.energy <= 0) {
+                        this.showGameOverScreen();
+                        return;  // Beende die Methode, um weitere Kollisionen zu vermeiden
+                    }
                 }
             }
-            // Überprüfe Kollision zwischen Charakter und Feind (Endboss oder andere Feinde)
+    
+            // Überprüfe Kollision zwischen Charakter und anderen Feinden
             if (!enemy.isDead && this.character.isColliding(enemy)) {
-                if (enemy instanceof Chicken || enemy instanceof SmallChicken || enemy instanceof Endboss) {
-                    // Charakter ist von oben auf das Huhn gesprungen
+                if (enemy instanceof Chicken || enemy instanceof SmallChicken) {
+                    // Charakter springt auf das Huhn und besiegt es
                     if (this.character.speedY < 0 && this.character.y + this.character.height * 0.9 < enemy.y) {
                         enemy.die();  // Huhn stirbt, wenn der Charakter von oben springt
                         setTimeout(() => {
@@ -96,15 +125,17 @@ class World {
                         // Kollision von der Seite -> Charakter nimmt Schaden
                         this.character.hit();
                         this.statusBarHealth.setPercentage(this.character.energy);
+                        
+                        // Zeige Game-Over-Screen, wenn die Energie auf 0 oder weniger fällt
+                        if (this.character.energy <= 0) {
+                            this.showGameOverScreen();
+                            return;  // Beende die Methode
+                        }
                     }
-                } else if (enemy instanceof Endboss) {
-                    // Kollision mit dem Endboss -> Charakter nimmt Schaden
-                    this.character.hit();
-                    this.statusBarHealth.setPercentage(this.character.energy);
-                }
+                } 
             }
         });
-
+    
         // 2. Überprüfe Kollisionen zwischen Flaschen und dem Endboss
         this.throwableObjects.forEach((bottle, bottleIndex) => {
             this.level.enemies.forEach((enemy) => {
@@ -116,7 +147,7 @@ class World {
                 }
             });
         });
-
+    
         // 3. Überprüfe Kollisionen mit Flaschen als sammelbare Objekte
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'bottle' && this.character.isColliding(collectible)) {
@@ -126,7 +157,7 @@ class World {
             }
             return true;
         });
-
+    
         // 4. Überprüfe Kollisionen mit Münzen
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'coin' && this.character.isColliding(collectible)) {
@@ -135,16 +166,14 @@ class World {
             }
             return true;
         });
-
+    
         // 5. Überprüfe, ob der Endboss besiegt wurde und zeige den Winnerscreen
-        this.level.enemies.forEach((enemy) => {
-            if (enemy instanceof Endboss && enemy.isDead()) {
-                this.showWinScreen();
-            }
-        });
-
+        let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
+        if (endboss && endboss.isDead()) {
+            this.showWinScreen();
+        }
     }
-
+    
     createCoins() {
         let totalDistance = 5000;  // Entfernung zum Endboss
         let numColletibles = 10;   // Anzahl der Coins
@@ -190,7 +219,7 @@ class World {
     }
 
     draw() {
-        if (this.showingWinScreen) return;
+        if (this.showingWinScreen || this.showingGameOverScreen) return;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
