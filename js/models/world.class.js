@@ -13,6 +13,7 @@ class World {
     bottleThrown = false;  // Neues Flag, um zu überprüfen, ob bereits eine Flasche geworfen wurde
     collectibles = [];
     collectedBottles = 0;
+    showingWinScreen = false; 
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -24,6 +25,26 @@ class World {
         this.setWorld();
         this.run();
     }
+
+    showWinScreen() {
+        if (this.showingWinScreen) return;  // Verhindert mehrfachen Aufruf
+        this.showingWinScreen = true;
+    
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        let img = new Image();
+        img.src = 'img/9_intro_outro_screens/win/win_1.png';
+    
+        img.onload = () => {
+            // Bild skalieren, um es in der Mitte des Canvas anzuzeigen
+            let scaleFactor = 0.5;  // Passe den Skalierungsfaktor an, um die Größe zu ändern
+            let width = img.width * scaleFactor;
+            let height = img.height * scaleFactor;
+            let x = (this.canvas.width - width) / 2;
+            let y = (this.canvas.height - height) / 2;
+            this.ctx.drawImage(img, x, y, width, height);
+        };
+    }
+    
 
     setWorld() {
         this.character.world = this;
@@ -54,21 +75,16 @@ class World {
         this.level.enemies.forEach((enemy, enemyIndex) => {
             if (enemy instanceof Endboss) {
                 enemy.alertIfPlayerNearby(this.character);  // Überprüft, ob der Endboss in Angriffsmodus wechselt
-                
+
                 if (!enemy.isDead() && this.character.isColliding(enemy)) {
                     // Der Charakter wird getroffen
                     this.character.hit();
                     this.statusBarHealth.setPercentage(this.character.energy);
-        
-                    // Game Over, falls Energie aufgebraucht ist
-                    if (this.character.energy <= 0) {
-                        showGameOverScreen();
-                    }
                 }
             }
             // Überprüfe Kollision zwischen Charakter und Feind (Endboss oder andere Feinde)
             if (!enemy.isDead && this.character.isColliding(enemy)) {
-                if (enemy instanceof Chicken || enemy instanceof SmallChicken || enemy instanceof Endboss ) {
+                if (enemy instanceof Chicken || enemy instanceof SmallChicken || enemy instanceof Endboss) {
                     // Charakter ist von oben auf das Huhn gesprungen
                     if (this.character.speedY < 0 && this.character.y + this.character.height * 0.9 < enemy.y) {
                         enemy.die();  // Huhn stirbt, wenn der Charakter von oben springt
@@ -88,7 +104,7 @@ class World {
                 }
             }
         });
-    
+
         // 2. Überprüfe Kollisionen zwischen Flaschen und dem Endboss
         this.throwableObjects.forEach((bottle, bottleIndex) => {
             this.level.enemies.forEach((enemy) => {
@@ -100,7 +116,7 @@ class World {
                 }
             });
         });
-    
+
         // 3. Überprüfe Kollisionen mit Flaschen als sammelbare Objekte
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'bottle' && this.character.isColliding(collectible)) {
@@ -110,7 +126,7 @@ class World {
             }
             return true;
         });
-    
+
         // 4. Überprüfe Kollisionen mit Münzen
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'coin' && this.character.isColliding(collectible)) {
@@ -119,9 +135,16 @@ class World {
             }
             return true;
         });
+
+        // 5. Überprüfe, ob der Endboss besiegt wurde und zeige den Winnerscreen
+        this.level.enemies.forEach((enemy) => {
+            if (enemy instanceof Endboss && enemy.isDead()) {
+                this.showWinScreen();
+            }
+        });
+
     }
-    
-    
+
     createCoins() {
         let totalDistance = 5000;  // Entfernung zum Endboss
         let numColletibles = 10;   // Anzahl der Coins
@@ -141,12 +164,12 @@ class World {
         let totalDistance = 4800;  // Entfernung zum Endboss
         let numBottles = 5;       // Anzahl der Flaschen
         let groundY = 310;        // y-Position für die Flaschen (auf dem Boden)
-    
+
         for (let i = 0; i < numBottles; i++) {
             let xPosition = (totalDistance / numBottles) * (i + 1);
             this.collectibles.push(new CollectibleObjects(xPosition, groundY, 'bottle'));
         }
-    
+
         // Setze die maximale Anzahl der Flaschen in der Statusbar
         this.statusBarBottles.maxItems = numBottles;
     }
@@ -156,18 +179,18 @@ class World {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
             this.bottleThrown = true;
-    
+
             // Ziehe eine Flasche von der Statusleiste ab
             this.statusBarBottles.useItem();  // Flasche aus der Statusbar entfernen
-    
+
             setTimeout(() => {
                 this.bottleThrown = false;  // Setze das Flag auf false, nachdem die Flasche entfernt wurde
             }, 1000);  // 1 Sekunde, bis die Flasche weg ist
         }
     }
-    
 
     draw() {
+        if (this.showingWinScreen) return;
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
@@ -181,27 +204,27 @@ class World {
         this.addToMap(this.statusBarHealth);
         this.addToMap(this.statusBarCoins);
         this.addToMap(this.statusBarBottles);
-    
+
         // Überprüfe, ob der Charakter den Endboss erreicht hat
         let endboss = this.level.enemies[this.level.enemies.length - 1];  // Der Endboss ist der letzte Feind
         if (this.character.x >= endboss.x - 700) {  // Wenn der Charakter nahe genug am Endboss ist
             this.addToMap(this.statusBarEndboss);  // Statusleiste des Endbosses anzeigen
         }
-    
+
         this.ctx.translate(this.camera_x, 0);
         this.addToMap(endboss);  // Endboss zeichnen
-        
+
         // Entferne Chickens nur, wenn der Charakter den Endboss erreicht hat
         if (this.character.x >= endboss.x - 300) {
             this.chickenGenerationEnabled = false;  // Stoppe die Generierung neuer Chickens
-    
+
             // Entferne alle Chickens, sobald der Endboss sichtbar ist
             this.level.enemies = this.level.enemies.filter(enemy => enemy instanceof Endboss);
         } else {
             // Zeichne normale Feinde (Chickens) solange der Endboss nicht sichtbar ist
             this.addObjectsToMap(this.level.enemies.filter(enemy => !(enemy instanceof Endboss)));
         }
-    
+
         this.addObjectsToMap(this.throwableObjects);
         this.ctx.translate(-this.camera_x, 0);
         let self = this;
@@ -209,7 +232,6 @@ class World {
             self.draw();
         });
     }
-    
 
     addObjectsToMap(objects) {
         objects.forEach(o => {
@@ -243,5 +265,4 @@ class World {
     generateEnemies() {
         if (!this.chickenGenerationEnabled) return;
     }
-
 }

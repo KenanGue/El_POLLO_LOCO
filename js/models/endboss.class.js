@@ -80,11 +80,13 @@ class Endboss extends MovableObject {
     }
 
     isDead() {
-        if (this.energy <= 0 && this.currentState !== 'dead') {
+        if (this.energy === 0 && this.currentState !== 'dead') {
             this.changeState('dead');
-            setTimeout(() => this.removeFromWorld(), this.IMAGES_DEAD.length * 150);
+            setTimeout(() => {
+                this.removeFromWorld();
+            }, this.IMAGES_DEAD.length * 150);
         }
-        return this.energy <= 0;
+        return this.energy === 0;
     }
     
 
@@ -135,6 +137,8 @@ class Endboss extends MovableObject {
         }
     }
     
+    
+
     move() {
         if (this.direction === 'left') {
             this.moveLeft();
@@ -163,10 +167,11 @@ class Endboss extends MovableObject {
         if (!this.alertTriggered && Math.abs(this.x - player.x) < 700) {
             this.changeState('alert');
             this.alertTriggered = true;
-
+    
             setTimeout(() => {
                 this.changeState('attack');  // Wechsel zu 'attack' nach Alert-Animation
-            }, this.IMAGES_ALERT.length * 150);  // Wartezeit entsprechend der Alert-Animation
+            }, this.IMAGES_ALERT.length * 150);
         }
     }
+    
 }

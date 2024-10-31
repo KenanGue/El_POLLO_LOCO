@@ -1,10 +1,8 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
-let isMuted = false; 
+let isMuted = false;  // Status für Stummschaltung
 let startScreen = 'img/9_intro_outro_screens/start/startscreen_1.png';
-let gameOverScreen = 'img/9_intro_outro_screens/game_over/game over!.png';
-let winnerScreen = 'img/9_intro_outro_screens/win/win_1.png';
 
 function init() {
     canvas = document.getElementById('canvas');
@@ -16,12 +14,15 @@ function showIntro() {
     let ctx = canvas.getContext('2d');
     let introImage = new Image();
     introImage.src = startScreen;
+
     introImage.onload = () => {
+        // Zeige das Intro-Bild auf dem Canvas an
         ctx.drawImage(introImage, 0, 0, canvas.width, canvas.height);
     };
+
+    // Zeige den Start-Button an
     document.getElementById('startButton').style.display = 'block';
 }
-
 
 function startGame() {
     // Verstecke den Start-Button und starte das Spiel
@@ -31,13 +32,6 @@ function startGame() {
     // Starte die Hintergrundmusik nach Benutzerinteraktion
     playBackgroundMusic();
 }
-
-function showGameOverScreen() {
-    document.getElementById('gameOverScreen').style.display = 'flex';
-    const audioElement = document.getElementById('backgroundAudio');
-    if (audioElement) audioElement.pause(); // Pausiere Hintergrundmusik
-}
-
 
 function playBackgroundMusic() {
     const audioElement = document.getElementById('backgroundAudio');
@@ -95,26 +89,7 @@ function backToStart() {
     location.reload();
 }
 
-function openGameplayOverlay() {
-    document.getElementById('gameplayOverlay').style.display = 'flex';
-}
-
-function closeGameplayOverlay(event) {
-    if (event.target.id === 'gameplayOverlay' || event.target.className === 'close-btn') {
-        document.getElementById('gameplayOverlay').style.display = 'none';
-    }
-}
-
-function openImpressumOverlay() {
-    document.getElementById('impressumOverlay').style.display = 'flex';
-}
-
-function closeImpressumOverlay(event) {
-    if (event.target.id === 'impressumOverlay' || event.target.className === 'close-btn') {
-        document.getElementById('impressumOverlay').style.display = 'none';
-    }
-}
-
+// Tastatursteuerung (unverändert)
 window.addEventListener("keydown", (e) => {
     if (e.keyCode == 39) {
         keyboard.RIGHT = true;
