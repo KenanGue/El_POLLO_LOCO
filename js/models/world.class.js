@@ -148,23 +148,94 @@ class World {
     
     
     showWinScreen() {
-        if (this.showingWinScreen) return;  // Verhindert mehrfachen Aufruf
+        if (this.showingWinScreen) return;
         this.showingWinScreen = true;
-
+    
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         let img = new Image();
         img.src = 'img/9_intro_outro_screens/win/win_1.png';
-
+    
         img.onload = () => {
-            // Bild skalieren, um es in der Mitte des Canvas anzuzeigen
-            let scaleFactor = 0.5;  // Passe den Skalierungsfaktor an, um die Größe zu ändern
+            let scaleFactor = 0.5;
             let width = img.width * scaleFactor;
             let height = img.height * scaleFactor;
             let x = (this.canvas.width - width) / 2;
             let y = (this.canvas.height - height) / 2;
+    
+            // Zeichne das Win-Bild
             this.ctx.drawImage(img, x, y, width, height);
+    
+            // Button-Position und -Größe setzen
+            let buttonX = x + width / 2 - 50;
+            let buttonY = (this.canvas.height / 2) + 100;
+            let buttonWidth = 120;
+            let buttonHeight = 40;
+    
+            // Button zeichnen (mit Hover-Effekt)
+            const drawButton = (isHovered) => {
+                this.ctx.fillStyle = isHovered ? "#FFB347" : "#FFA500";
+                this.ctx.strokeStyle = "black";
+                this.ctx.lineWidth = 3;
+    
+                this.ctx.beginPath();
+                this.ctx.moveTo(buttonX + 10, buttonY);
+                this.ctx.lineTo(buttonX + buttonWidth - 10, buttonY);
+                this.ctx.arcTo(buttonX + buttonWidth, buttonY, buttonX + buttonWidth, buttonY + 10, 10);
+                this.ctx.lineTo(buttonX + buttonWidth, buttonY + buttonHeight - 10);
+                this.ctx.arcTo(buttonX + buttonWidth, buttonY + buttonHeight, buttonX + buttonWidth - 10, buttonY + buttonHeight, 10);
+                this.ctx.lineTo(buttonX + 10, buttonY + buttonHeight);
+                this.ctx.arcTo(buttonX, buttonY + buttonHeight, buttonX, buttonY + buttonHeight - 10, 10);
+                this.ctx.lineTo(buttonX, buttonY + 10);
+                this.ctx.arcTo(buttonX, buttonY, buttonX + 10, buttonY, 10);
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+    
+                this.ctx.fillStyle = isHovered ? "white" : "black";
+                this.ctx.font = isHovered ? "20px western" : "18px western";
+                this.ctx.textAlign = "center";
+                this.ctx.textBaseline = "middle";
+                this.ctx.fillText("Erneut spielen", buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
+            };
+    
+            // Button das erste Mal ohne Hover zeichnen
+            drawButton(false);
+    
+            // Hover-Event
+            const mouseMoveHandler = (event) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = event.clientY - rect.top;
+    
+                const isHovered = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                                  mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
+    
+                // Canvas leeren und alles neu zeichnen (inkl. Hover-Effekt)
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.drawImage(img, x, y, width, height);
+                drawButton(isHovered);
+            };
+    
+            // Klick-Event
+            const clickHandler = (event) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const clickX = event.clientX - rect.left;
+                const clickY = event.clientY - rect.top;
+    
+                if (clickX >= buttonX && clickX <= buttonX + buttonWidth && clickY >= buttonY && clickY <= buttonY + buttonHeight) {
+                    console.log("Erneut spielen-Button geklickt");
+                    this.canvas.removeEventListener('mousemove', mouseMoveHandler);
+                    this.canvas.removeEventListener('click', clickHandler);
+                    this.restartGame();
+                }
+            };
+    
+            // Events hinzufügen
+            this.canvas.addEventListener('mousemove', mouseMoveHandler);
+            this.canvas.addEventListener('click', clickHandler);
         };
     }
+    
 
     setWorld() {
         this.character.world = this;
