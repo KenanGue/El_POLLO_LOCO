@@ -71,8 +71,9 @@ class Character extends MovableObject {
     idleTimeThreshold = 5000;
     isDeadSoundPlayed = false;
 
-    constructor() {
+    constructor(world) {
         super();
+        this.world = world;
         this.loadImage('img/2_character_pepe/1_idle/idle/I-1.png');
         this.loadImages(this.IMAGES_WALKING);
         this.loadImages(this.IMAGES_JUMPING);

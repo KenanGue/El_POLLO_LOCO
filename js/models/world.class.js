@@ -13,7 +13,7 @@ class World {
     bottleThrown = false;  // Neues Flag, um zu überprüfen, ob bereits eine Flasche geworfen wurde
     collectibles = [];
     collectedBottles = 0;
-    showingWinScreen = false; 
+    showingWinScreen = false;
     showingGameOverScreen = false;
 
     constructor(canvas, keyboard) {
@@ -27,12 +27,34 @@ class World {
         this.run();
     }
 
+    restartGame() {
+        this.showingWinScreen = false;
+        this.showingGameOverScreen = false;
+        this.character = new Character();
+        this.level = level1;
+    
+        // Rufe reset() für jede Statusbar auf
+        this.statusBarHealth.reset();
+        this.statusBarCoins.reset();
+        this.statusBarBottles.reset();
+        this.statusBarEndboss.reset();
+    
+        this.throwableObjects = [];
+        this.collectibles = [];
+        this.collectedBottles = 0;
+        
+        // Leere das Canvas und starte das Spiel neu
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.run();
+        this.draw();
+    }
+    
+    
     showGameOverScreen() {
         if (this.showingGameOverScreen) return;  // Verhindert mehrfachen Aufruf
         this.showingGameOverScreen = true;
     
-        console.log("Game-Over-Screen wird angezeigt");  // Überprüfen, ob die Methode aufgerufen wird
-    
+        // Canvas leeren und Game-Over-Bild laden
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         let img = new Image();
         img.src = 'img/9_intro_outro_screens/game_over/game over!.png';
@@ -43,19 +65,96 @@ class World {
             let height = img.height * scaleFactor;
             let x = (this.canvas.width - width) / 2;
             let y = (this.canvas.height - height) / 2;
+    
+            // Zeichne das Game-Over-Bild
             this.ctx.drawImage(img, x, y, width, height);
+    
+            // Setze die Position und Größe des Buttons
+            let buttonX = x + width / 2 - 50;
+            let buttonY = (this.canvas.height / 2) + 100;
+            let buttonWidth = 120;
+            let buttonHeight = 40;
+    
+            // Funktion zum Zeichnen des Buttons mit Hover-Effekt
+            const drawButton = (isHovered) => {
+                this.ctx.fillStyle = isHovered ? "#FFB347" : "#FFA500";  // Hellerer Orange-Ton bei Hover
+                this.ctx.strokeStyle = "black";  // Randfarbe des Buttons
+                this.ctx.lineWidth = 3;
+    
+                this.ctx.beginPath();
+                this.ctx.moveTo(buttonX + 10, buttonY);
+                this.ctx.lineTo(buttonX + buttonWidth - 10, buttonY);
+                this.ctx.arcTo(buttonX + buttonWidth, buttonY, buttonX + buttonWidth, buttonY + 10, 10);
+                this.ctx.lineTo(buttonX + buttonWidth, buttonY + buttonHeight - 10);
+                this.ctx.arcTo(buttonX + buttonWidth, buttonY + buttonHeight, buttonX + buttonWidth - 10, buttonY + buttonHeight, 10);
+                this.ctx.lineTo(buttonX + 10, buttonY + buttonHeight);
+                this.ctx.arcTo(buttonX, buttonY + buttonHeight, buttonX, buttonY + buttonHeight - 10, 10);
+                this.ctx.lineTo(buttonX, buttonY + 10);
+                this.ctx.arcTo(buttonX, buttonY, buttonX + 10, buttonY, 10);
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.stroke();
+    
+                // Text im Button zentriert platzieren und Schriftattribute ändern bei Hover
+                this.ctx.fillStyle = isHovered ? "white" : "black";  // Schriftfarbe weiß bei Hover
+                this.ctx.font = isHovered ? "20px western" : "18px western";  // Schriftgröße um 4px vergrößern bei Hover
+                this.ctx.textAlign = "center";
+                this.ctx.textBaseline = "middle";
+                this.ctx.fillText("Erneut spielen", buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
+            };
+    
+            // Zeichne den Button das erste Mal ohne Hover-Effekt
+            drawButton(false);
+    
+            // Event-Listener für den Hover-Effekt
+            const mouseMoveHandler = (event) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = event.clientY - rect.top;
+    
+                // Prüfe, ob der Mauszeiger über dem Button ist
+                const isHovered = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
+                                  mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
+    
+                // Leere den Canvas und zeichne alles neu, einschließlich des Hover-Effekts für den Button
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                this.ctx.drawImage(img, x, y, width, height);  // Game-Over-Bild neu zeichnen
+                drawButton(isHovered);  // Button neu zeichnen, basierend auf Hover-Status
+            };
+    
+            // Klick-Event für den Button
+            const clickHandler = (event) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const clickX = event.clientX - rect.left;
+                const clickY = event.clientY - rect.top;
+    
+                // Überprüfen, ob der Klick im Button-Bereich war
+                if (clickX >= buttonX && clickX <= buttonX + buttonWidth && clickY >= buttonY && clickY <= buttonY + buttonHeight) {
+                    console.log("Erneut spielen-Button geklickt");
+                    this.canvas.removeEventListener('mousemove', mouseMoveHandler);  // Entferne Hover-Event
+                    this.canvas.removeEventListener('click', clickHandler);  // Entferne Klick-Event
+                    this.restartGame();  // Starte das Spiel neu
+                }
+            };
+    
+            // Event-Listener für Hover und Klick hinzufügen
+            this.canvas.addEventListener('mousemove', mouseMoveHandler);
+            this.canvas.addEventListener('click', clickHandler);
         };
     }
     
-
+    
+    
+    
+    
     showWinScreen() {
         if (this.showingWinScreen) return;  // Verhindert mehrfachen Aufruf
         this.showingWinScreen = true;
-    
+
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         let img = new Image();
         img.src = 'img/9_intro_outro_screens/win/win_1.png';
-    
+
         img.onload = () => {
             // Bild skalieren, um es in der Mitte des Canvas anzuzeigen
             let scaleFactor = 0.5;  // Passe den Skalierungsfaktor an, um die Größe zu ändern
@@ -66,7 +165,6 @@ class World {
             this.ctx.drawImage(img, x, y, width, height);
         };
     }
-    
 
     setWorld() {
         this.character.world = this;
@@ -97,12 +195,12 @@ class World {
         this.level.enemies.forEach((enemy, enemyIndex) => {
             if (enemy instanceof Endboss) {
                 enemy.alertIfPlayerNearby(this.character);  // Endboss wechselt in Angriffsmodus, wenn der Spieler nahe ist
-                
+
                 if (!enemy.isDead() && this.character.isColliding(enemy)) {
                     // Der Charakter wird getroffen
                     this.character.hit();
                     this.statusBarHealth.setPercentage(this.character.energy);
-    
+
                     // Zeige Game-Over-Screen, wenn die Energie auf 0 oder weniger fällt
                     if (this.character.energy <= 0) {
                         this.showGameOverScreen();
@@ -110,7 +208,7 @@ class World {
                     }
                 }
             }
-    
+
             // Überprüfe Kollision zwischen Charakter und anderen Feinden
             if (!enemy.isDead && this.character.isColliding(enemy)) {
                 if (enemy instanceof Chicken || enemy instanceof SmallChicken) {
@@ -125,17 +223,17 @@ class World {
                         // Kollision von der Seite -> Charakter nimmt Schaden
                         this.character.hit();
                         this.statusBarHealth.setPercentage(this.character.energy);
-                        
+
                         // Zeige Game-Over-Screen, wenn die Energie auf 0 oder weniger fällt
                         if (this.character.energy <= 0) {
                             this.showGameOverScreen();
                             return;  // Beende die Methode
                         }
                     }
-                } 
+                }
             }
         });
-    
+
         // 2. Überprüfe Kollisionen zwischen Flaschen und dem Endboss
         this.throwableObjects.forEach((bottle, bottleIndex) => {
             this.level.enemies.forEach((enemy) => {
@@ -147,7 +245,7 @@ class World {
                 }
             });
         });
-    
+
         // 3. Überprüfe Kollisionen mit Flaschen als sammelbare Objekte
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'bottle' && this.character.isColliding(collectible)) {
@@ -157,7 +255,7 @@ class World {
             }
             return true;
         });
-    
+
         // 4. Überprüfe Kollisionen mit Münzen
         this.collectibles = this.collectibles.filter(collectible => {
             if (collectible instanceof CollectibleObjects && collectible.type === 'coin' && this.character.isColliding(collectible)) {
@@ -166,14 +264,14 @@ class World {
             }
             return true;
         });
-    
+
         // 5. Überprüfe, ob der Endboss besiegt wurde und zeige den Winnerscreen
         let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
         if (endboss && endboss.isDead()) {
             this.showWinScreen();
         }
     }
-    
+
     createCoins() {
         let totalDistance = 5000;  // Entfernung zum Endboss
         let numColletibles = 10;   // Anzahl der Coins
@@ -219,7 +317,10 @@ class World {
     }
 
     draw() {
-        if (this.showingWinScreen || this.showingGameOverScreen) return;
+            if (this.showingWinScreen || this.showingGameOverScreen) {
+                console.log("Zeichen-Schleife gestoppt wegen Game-Over oder Win-Screen.");
+                return;
+            }
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
@@ -233,16 +334,16 @@ class World {
         this.addToMap(this.statusBarHealth);
         this.addToMap(this.statusBarCoins);
         this.addToMap(this.statusBarBottles);
-
+        
         // Überprüfe, ob der Charakter den Endboss erreicht hat
         let endboss = this.level.enemies[this.level.enemies.length - 1];  // Der Endboss ist der letzte Feind
         if (this.character.x >= endboss.x - 700) {  // Wenn der Charakter nahe genug am Endboss ist
             this.addToMap(this.statusBarEndboss);  // Statusleiste des Endbosses anzeigen
         }
-
+        
         this.ctx.translate(this.camera_x, 0);
         this.addToMap(endboss);  // Endboss zeichnen
-
+        
         // Entferne Chickens nur, wenn der Charakter den Endboss erreicht hat
         if (this.character.x >= endboss.x - 300) {
             this.chickenGenerationEnabled = false;  // Stoppe die Generierung neuer Chickens
@@ -253,7 +354,7 @@ class World {
             // Zeichne normale Feinde (Chickens) solange der Endboss nicht sichtbar ist
             this.addObjectsToMap(this.level.enemies.filter(enemy => !(enemy instanceof Endboss)));
         }
-
+        
         this.addObjectsToMap(this.throwableObjects);
         this.ctx.translate(-this.camera_x, 0);
         let self = this;
@@ -261,7 +362,7 @@ class World {
             self.draw();
         });
     }
-
+    
     addObjectsToMap(objects) {
         objects.forEach(o => {
             this.addToMap(o);

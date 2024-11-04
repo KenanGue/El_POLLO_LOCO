@@ -124,6 +124,15 @@ class StatusBar extends DrawableObject {
         return 0;  // Fallback auf 0, wenn die Energie unter dem ersten Schwellenwert liegt
     }
     
+    reset() {
+        if (this.type === 'coin' || this.type === 'bottle') {
+            this.percentage = 0;  // Setze Münzen und Flaschen auf 0
+            this.currentItems = 0;  // Setze die Anzahl gesammelter Items auf 0
+        } else {
+            this.percentage = 100;  // Setze Gesundheit und Endboss auf 100
+        }
+        this.setPercentage(this.percentage);  // Aktualisiere die Statusleiste
+    }
     
     
 }
