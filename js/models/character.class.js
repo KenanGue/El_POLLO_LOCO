@@ -86,7 +86,7 @@ class Character extends MovableObject {
     }
 
     animate() {
-        setInterval(() => {
+        this.idleAnimationInterval = setInterval(() => {
             let currentTime = new Date().getTime();
             if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT && !this.world.keyboard.SPACE) {
                 if (currentTime - this.lastActionTime > this.idleTimeThreshold) {
@@ -98,8 +98,8 @@ class Character extends MovableObject {
                 this.lastActionTime = currentTime;
             }
         }, 100);
-        
-        setInterval(() => {
+    
+        this.walkRightInterval = setInterval(() => {
             this.walking_sound.pause();
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
                 this.moveRight();
@@ -107,8 +107,8 @@ class Character extends MovableObject {
                 this.walking_sound.play();
             }
         }, 1000 / 60);
-
-        setInterval(() => {
+    
+        this.walkLeftInterval = setInterval(() => {
             if (this.world.keyboard.LEFT && this.x > 0) {
                 this.moveLeft();
                 this.otherDirection = true;
@@ -116,17 +116,17 @@ class Character extends MovableObject {
             }
             if (this.world.keyboard.SPACE && !this.isAboveGround()) {
                 this.jump();
-              this.jumping_sound.play();
+                this.jumping_sound.play();
             }
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
-
-        setInterval(() => {
+    
+        this.actionInterval = setInterval(() => {
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
                 this.fallDown();
                 if (!this.isDeadSoundPlayed) {
-                   this.dead_sound.play();
+                    this.dead_sound.play();
                     this.isDeadSoundPlayed = true;
                 }
             } else if (this.isHurt()) {
@@ -141,6 +141,14 @@ class Character extends MovableObject {
             }
         }, 50);
     }
+    
+    stopIntervals() {
+        clearInterval(this.idleAnimationInterval);
+        clearInterval(this.walkRightInterval);
+        clearInterval(this.walkLeftInterval);
+        clearInterval(this.actionInterval);
+    }
+    
 
    fallDown() {
     if (this.speedY === 0) {
@@ -162,4 +170,11 @@ class Character extends MovableObject {
     jump() {
         this.speedY = 30;
     }
+
+// Rufen Sie diese Methode in `restartGame` auf, bevor eine neue `Character`-Instanz erstellt wird:
+restartGame() {
+    this.character.stopIntervals();
+    this.character = new Character(this);
+}
+
 }

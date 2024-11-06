@@ -25,29 +25,75 @@ class World {
         this.draw();
         this.setWorld();
         this.run();
+        this.mouseMoveHandler = (event) => this.handleMouseMove(event);
+        this.clickHandler = (event) => this.handleClick(event);
     }
 
+    handleMouseMove(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = event.clientX - rect.left;
+        const mouseY = event.clientY - rect.top;
+        const isHovered = mouseX >= this.buttonX && mouseX <= this.buttonX + this.buttonWidth &&
+                          mouseY >= this.buttonY && mouseY <= this.buttonY + this.buttonHeight;
+    
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.drawImage(this.currentImage, this.imageX, this.imageY, this.imageWidth, this.imageHeight);
+        this.drawButton(isHovered);
+    }
+    
+    handleClick(event) {
+        const rect = this.canvas.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const clickY = event.clientY - rect.top;
+    
+        if (clickX >= this.buttonX && clickX <= this.buttonX + this.buttonWidth &&
+            clickY >= this.buttonY && clickY <= this.buttonY + this.buttonHeight) {
+            console.log("Erneut spielen-Button geklickt");
+            this.canvas.removeEventListener('mousemove', this.mouseMoveHandler);
+            this.canvas.removeEventListener('click', this.clickHandler);
+            this.restartGame();
+        }
+    }
+    
+
     restartGame() {
+        // Spielzustände zurücksetzen
         this.showingWinScreen = false;
         this.showingGameOverScreen = false;
-        this.character = new Character();
+        if (this.runInterval) clearInterval(this.runInterval);
+    if (this.animationFrameId) cancelAnimationFrame(this.animationFrameId);
+        
+        // Charakter und Level neu initialisieren
+        this.character.stopIntervals();
+        this.character = new Character(this);
         this.level = level1;
     
-        // Rufe reset() für jede Statusbar auf
+        // Statusleisten zurücksetzen
         this.statusBarHealth.reset();
         this.statusBarCoins.reset();
         this.statusBarBottles.reset();
         this.statusBarEndboss.reset();
+        if (this.animationFrameId) {
+            cancelAnimationFrame(this.animationFrameId);
+        }
+        
+        // Canvas zurücksetzen und Event-Listener entfernen
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.canvas.removeEventListener('mousemove', this.mouseMoveHandler);
+        this.canvas.removeEventListener('click', this.clickHandler);
     
+        // Spielvariablen neu initialisieren
         this.throwableObjects = [];
         this.collectibles = [];
+        this.createCoins();
+    this.createBottles();
         this.collectedBottles = 0;
-        
-        // Leere das Canvas und starte das Spiel neu
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        this.run();
+    
+        // Zeichnung und Spiel-Loop starten
         this.draw();
+        this.run();
     }
+    
     
     
     showGameOverScreen() {
@@ -161,11 +207,9 @@ class World {
             let height = img.height * scaleFactor;
             let x = (this.canvas.width - width) / 2;
             let y = (this.canvas.height - height) / 2;
-    
-            // Zeichne das Win-Bild
             this.ctx.drawImage(img, x, y, width, height);
     
-            // Button-Position und -Größe setzen
+            // Setze die Position und Größe des Buttons
             let buttonX = x + width / 2 - 50;
             let buttonY = (this.canvas.height / 2) + 100;
             let buttonWidth = 120;
@@ -198,11 +242,10 @@ class World {
                 this.ctx.fillText("Erneut spielen", buttonX + buttonWidth / 2, buttonY + buttonHeight / 2);
             };
     
-            // Button das erste Mal ohne Hover zeichnen
             drawButton(false);
     
-            // Hover-Event
-            const mouseMoveHandler = (event) => {
+            // Event-Handler speichern, damit sie beim Neustart entfernt werden können
+            this.mouseMoveHandler = (event) => {
                 const rect = this.canvas.getBoundingClientRect();
                 const mouseX = event.clientX - rect.left;
                 const mouseY = event.clientY - rect.top;
@@ -210,33 +253,29 @@ class World {
                 const isHovered = mouseX >= buttonX && mouseX <= buttonX + buttonWidth &&
                                   mouseY >= buttonY && mouseY <= buttonY + buttonHeight;
     
-                // Canvas leeren und alles neu zeichnen (inkl. Hover-Effekt)
                 this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 this.ctx.drawImage(img, x, y, width, height);
                 drawButton(isHovered);
             };
     
-            // Klick-Event
-            const clickHandler = (event) => {
+            this.clickHandler = (event) => {
                 const rect = this.canvas.getBoundingClientRect();
                 const clickX = event.clientX - rect.left;
                 const clickY = event.clientY - rect.top;
     
                 if (clickX >= buttonX && clickX <= buttonX + buttonWidth && clickY >= buttonY && clickY <= buttonY + buttonHeight) {
                     console.log("Erneut spielen-Button geklickt");
-                    this.canvas.removeEventListener('mousemove', mouseMoveHandler);
-                    this.canvas.removeEventListener('click', clickHandler);
+                    this.canvas.removeEventListener('mousemove', this.mouseMoveHandler);
+                    this.canvas.removeEventListener('click', this.clickHandler);
                     this.restartGame();
                 }
             };
     
-            // Events hinzufügen
-            this.canvas.addEventListener('mousemove', mouseMoveHandler);
-            this.canvas.addEventListener('click', clickHandler);
+            this.canvas.addEventListener('mousemove', this.mouseMoveHandler);
+            this.canvas.addEventListener('click', this.clickHandler);
         };
     }
     
-
     setWorld() {
         this.character.world = this;
     }
@@ -428,10 +467,10 @@ class World {
         
         this.addObjectsToMap(this.throwableObjects);
         this.ctx.translate(-this.camera_x, 0);
-        let self = this;
-        requestAnimationFrame(function () {
-            self.draw();
+        this.animationFrameId = requestAnimationFrame(() => {
+            this.draw();
         });
+        
     }
     
     addObjectsToMap(objects) {
