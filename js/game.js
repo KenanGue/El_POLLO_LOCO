@@ -27,19 +27,11 @@ function showIntro() {
 function startGame() {
     // Verstecke den Start-Button und starte das Spiel
     document.getElementById('startButton').style.display = 'none';
-
-    // Beende die bestehende World-Instanz, falls eine existiert
-    if (world) {
-        world.stopGameLoops();  // Stoppt alle Animationen und Intervalle
-        world = null;  // Setze die World-Instanz auf null
-    }
-    
-    world = new World(canvas, keyboard);  // Initialisiere die neue World-Instanz
+    world = new World(canvas, keyboard);  // Initialisiere die World-Instanz
     
     // Starte die Hintergrundmusik nach Benutzerinteraktion
     playBackgroundMusic();
 }
-
 
 function playBackgroundMusic() {
     const audioElement = document.getElementById('backgroundAudio');
