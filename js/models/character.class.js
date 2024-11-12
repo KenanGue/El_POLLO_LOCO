@@ -1,3 +1,6 @@
+/**
+ * The Character class represents the player's character, including animations and sounds for actions.
+ */
 class Character extends MovableObject {
     height = 260;
     width = 160;
@@ -71,6 +74,10 @@ class Character extends MovableObject {
     idleTimeThreshold = 5000;
     isDeadSoundPlayed = false;
 
+     /**
+     * Initializes the Character with animations, sounds, and applies gravity.
+     * @param {Object} world - Reference to the game world.
+     */
     constructor(world) {
         super();
         this.world = world;
@@ -85,6 +92,9 @@ class Character extends MovableObject {
         this.animate();
     }
 
+    /**
+     * Animates the character based on keyboard input, performing actions like walking, jumping, and idle animations.
+     */
     animate() {
         this.idleAnimationInterval = setInterval(() => {
             let currentTime = new Date().getTime();
@@ -98,7 +108,7 @@ class Character extends MovableObject {
                 this.lastActionTime = currentTime;
             }
         }, 100);
-    
+
         this.walkRightInterval = setInterval(() => {
             this.walking_sound.pause();
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -107,7 +117,7 @@ class Character extends MovableObject {
                 this.walking_sound.play();
             }
         }, 1000 / 60);
-    
+
         this.walkLeftInterval = setInterval(() => {
             if (this.world.keyboard.LEFT && this.x > 0) {
                 this.moveLeft();
@@ -120,7 +130,7 @@ class Character extends MovableObject {
             }
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
-    
+
         this.actionInterval = setInterval(() => {
             if (this.isDead()) {
                 this.playAnimation(this.IMAGES_DEAD);
@@ -141,40 +151,46 @@ class Character extends MovableObject {
             }
         }, 50);
     }
-    
+
+    /**
+     * Stops all animation intervals, used for pausing or ending the game.
+     */
     stopIntervals() {
         clearInterval(this.idleAnimationInterval);
         clearInterval(this.walkRightInterval);
         clearInterval(this.walkLeftInterval);
         clearInterval(this.actionInterval);
     }
-    
 
-   fallDown() {
-    if (this.speedY === 0) {
-        this.speedY = 20;  // Anfangsgeschwindigkeit nach oben
-        this.speedX = 5;   // Seitliche Bewegung nach rechts (oder links, wenn du möchtest)
+    /**
+     * Causes the character to fall, simulating a falling effect for when the character is dead.
+     */
+    fallDown() {
+        if (this.speedY === 0) {
+            this.speedY = 20;
+            this.speedX = 5;
+        }
+        this.y -= this.speedY;
+        this.x += this.speedX;
+        this.speedY -= this.acceleration;
+        if (this.y > 600) {
+            this.y = 600;
+        }
     }
 
-    // Schwerkraft anwenden (der Charakter fällt nach unten)
-    this.y -= this.speedY;  // Nach oben bewegen
-    this.x += this.speedX;  // Seitlich bewegen (optional)
-    
-    this.speedY -= this.acceleration;  // Geschwindigkeit verringert sich durch Schwerkraft
-
-    // Charakter fällt nach unten, sobald die Geschwindigkeit negativ wird
-    if (this.y > 600) {  // Wenn der Charakter den Bildschirm verlässt (y > 600)
-        this.y = 600;  // Halte ihn außerhalb des Bildschirms
-    }
-}
+    /**
+     * Makes the character jump by setting a vertical speed.
+     */
     jump() {
         this.speedY = 30;
     }
 
-// Rufen Sie diese Methode in `restartGame` auf, bevor eine neue `Character`-Instanz erstellt wird:
-restartGame() {
-    this.character.stopIntervals();
-    this.character = new Character(this);
-}
+    /**
+     * Restarts the game by reinitializing the character.
+     */
+    restartGame() {
+        this.character.stopIntervals();
+        this.character = new Character(this);
+    }
 
 }

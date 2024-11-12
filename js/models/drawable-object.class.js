@@ -1,3 +1,6 @@
+/**
+ * DrawableObject is the base class for objects that can be drawn on the canvas.
+ */
 class DrawableObject {
     img;
     imageCache = [];
@@ -7,6 +10,10 @@ class DrawableObject {
     height = 150;
     width = 100;
 
+    /**
+     * Loads a single image for the object.
+     * @param {string} path - Path to the image file.
+     */
     loadImage(path) {
         this.img = new Image();
         this.img.src = path;
@@ -17,14 +24,20 @@ class DrawableObject {
         };
     }
 
+    /**
+     * Draws the object on the specified canvas context.
+     * @param {CanvasRenderingContext2D} ctx - The canvas context to draw on.
+     */
     draw(ctx) {
         if (this.img) {
-            // Bild wird immer versucht zu zeichnen, wenn es vorhanden ist
             ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
         }
-        // Keine Blockierung, Bild wird angezeigt, wenn es geladen ist
     }
 
+    /**
+     * Draws a frame around the object, useful for debugging.
+     * @param {CanvasRenderingContext2D} ctx - The canvas context to draw on.
+     */
     drawFrame(ctx) {
         if (this instanceof Character || this instanceof Chicken || this instanceof SmallChicken || this instanceof Endboss || this instanceof CollectibleObjects) {
             ctx.beginPath();
@@ -35,6 +48,10 @@ class DrawableObject {
         }
     }
 
+    /**
+     * Loads multiple images and caches them, useful for animations.
+     * @param {Array<string>} arr - Array of image paths to load.
+     */
     loadImages(arr) {
         arr.forEach((path) => {
             let img = new Image();

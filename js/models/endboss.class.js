@@ -1,9 +1,12 @@
+/**
+ * The Endboss class defines the behavior and animations for the end-level boss.
+ */
 class Endboss extends MovableObject {
     height = 300;
     width = 200;
     y = 150;
-    energy = 100;  // Startenergie des Endbosses bei 100 (entspricht 5 Treffern)
-    speedX = 3;  // Geschwindigkeit für horizontale Bewegung
+    energy = 100;  
+    speedX = 3;  
 
     IMAGES_WALKING = [
         'img/4_enemie_boss_chicken/1_walk/G1.png',
@@ -42,12 +45,15 @@ class Endboss extends MovableObject {
         'img/4_enemie_boss_chicken/5_dead/G26.png'
     ];
 
-    currentState = 'walking';  // Aktueller Zustand des Endbosses
-    direction = 'left';  // Richtung, in die sich der Endboss bewegt
-    alertTriggered = false;  // Überprüft, ob der Alert bereits getriggert wurde
-    minX = 5100;  // Minimale x-Position
+    currentState = 'walking'; 
+    direction = 'left';  
+    alertTriggered = false;  
+    minX = 5100;  
     maxX = 5200;
 
+    /**
+     * Initializes the Endboss with properties, images, and animations.
+     */
     constructor() {
         super();
         this.speedX = 3;
@@ -58,27 +64,36 @@ class Endboss extends MovableObject {
         this.loadImages(this.IMAGES_ATTACK);
         this.loadImages(this.IMAGES_HURT);
         this.loadImages(this.IMAGES_DEAD);
-        this.x = this.maxX;  // Anfangsposition des Endbosses
+        this.x = this.maxX;  
         this.y = 150; 
         this.animate();
     }
 
+    /**
+     * Reduces the endboss's energy and plays the hurt animation.
+     * Transitions to attack state after a short delay unless the boss is dead.
+     */
     hit() {
         if (!this.isDead() && !this.hitAlready) {
-            this.energy -= Math.min(20, this.energy);  // Reduziere die Energie, aber niemals mehr als die verbleibende Energie
-            this.energy = Math.max(0, this.energy);  // Stelle sicher, dass die Energie nicht negativ wird
+            this.energy -= Math.min(20, this.energy);  
+            this.energy = Math.max(0, this.energy); 
             this.hitAlready = true;
-            this.changeState('hurt');  // Wechsel zu 'hurt'
+            this.changeState('hurt');  
             setTimeout(() => {
                 this.hitAlready = false;
                 if (!this.isDead()) {
-                    this.changeState('attack');  // Zurück zu 'walking' nach 'hurt'
+                    this.changeState('attack');  
                 }
-            }, 500);  // Nach 500ms wieder zurück zum "walking"-Zustand
+            }, 500);  
         } else if (this.isDead()) {
         }
     }
 
+    /**
+     * Checks if the endboss is dead (energy is 0) and initiates the death animation.
+     * Removes the endboss from the world after the animation finishes.
+     * @returns {boolean} True if the endboss is dead, otherwise false.
+     */
     isDead() {
         if (this.energy === 0 && this.currentState !== 'dead') {
             this.changeState('dead');
@@ -89,7 +104,10 @@ class Endboss extends MovableObject {
         return this.energy === 0;
     }
     
-
+    /**
+     * Changes the state of the endboss, triggering corresponding animations.
+     * @param {string} state - The new state (walking, alert, attack, hurt, dead).
+     */
     changeState(state) {
         this.currentState = state;
         if (state === 'walking') {
@@ -105,16 +123,21 @@ class Endboss extends MovableObject {
         }
     }
 
+    /**
+     * Animates the endboss by moving and playing the current state's animation.
+     */
     animate() {
         setInterval(() => {
-            if (this.currentState === 'walking' || this.currentState === 'attack') {  // Bewegung auch im 'attack'-Zustand
-                this.move();  // Endboss bewegt sich im 'walking' oder 'attack' Zustand
+            if (this.currentState === 'walking' || this.currentState === 'attack') {  
+                this.move();  
             }
-            this.playCurrentStateAnimation();  // Spielt die Animation für den aktuellen Zustand
+            this.playCurrentStateAnimation(); 
         }, 150);
     }
     
-
+    /**
+     * Plays the current state's animation based on the endboss's state.
+     */
     playCurrentStateAnimation() {
         if (this.currentState === 'walking') {
             this.playAnimation(this.IMAGES_WALKING);
@@ -125,53 +148,69 @@ class Endboss extends MovableObject {
         } else if (this.currentState === 'hurt') {
             this.playAnimation(this.IMAGES_HURT);
         } else if (this.currentState === 'dead' && !this.deadAnimationPlayed) {
-            // Abspielen der Sterbeanimation nur einmal
             this.playAnimation(this.IMAGES_DEAD);
-            this.deadAnimationPlayed = true;  // Markiere als abgespielt
-    
-            // Setze das letzte Bild der `dead`-Animation fest
+            this.deadAnimationPlayed = true;  
             setTimeout(() => {
-                this.img = this.imageCache[this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]];  // Zeige das letzte Bild
-                this.applyGravity();  // Lasse den Endboss nach unten fallen
-            }, this.IMAGES_DEAD.length * 150);  // Wartezeit basierend auf der Länge der Sterbeanimation
+                this.img = this.imageCache[this.IMAGES_DEAD[this.IMAGES_DEAD.length - 1]];  
+                this.applyGravity(); 
+            }, this.IMAGES_DEAD.length * 150);  
         }
     }
     
-    
-
+    /**
+     * Moves the endboss left or right within its allowed movement boundaries.
+     */
     move() {
         if (this.direction === 'left') {
             this.moveLeft();
             if (this.x <= this.minX) {
-                this.direction = 'right';  // Richtung ändern, wenn die minimale Position erreicht wird
+                this.direction = 'right';  
             }
         } else if (this.direction === 'right') {
             this.moveRight();
             if (this.x >= this.maxX) {
-                this.direction = 'left';  // Richtung ändern, wenn die maximale Position erreicht wird
+                this.direction = 'left';  
             }
         }
     }
     
+    /**
+     * Applies gravity to the endboss, used when it "falls" after being defeated.
+     */
     applyGravity() {
         let gravityInterval = setInterval(() => {
-            if (this.y < 500) {  // Lässt den Endboss nur bis zu einer bestimmten Höhe fallen (z.B. y = 500)
-                this.y += 5;  // Geschwindigkeit des Falls
+            if (this.y < 500) {  
+                this.y += 5;  
             } else {
-                clearInterval(gravityInterval);  // Stoppt die Schwerkraft, wenn der Endboss den Boden erreicht
+                clearInterval(gravityInterval); 
             }
         }, 1000 / 25);
     }
 
+    /**
+     * Triggers the alert state if the player is nearby and prepares the endboss to attack.
+     * @param {Character} player - The player character object.
+     */
     alertIfPlayerNearby(player) {
         if (!this.alertTriggered && Math.abs(this.x - player.x) < 700) {
             this.changeState('alert');
             this.alertTriggered = true;
     
             setTimeout(() => {
-                this.changeState('attack');  // Wechsel zu 'attack' nach Alert-Animation
+                this.changeState('attack'); 
             }, this.IMAGES_ALERT.length * 150);
         }
+    }
+
+    /**
+     * Resets the movement parameters and reinitializes animations for the endboss.
+     */
+    resetMovement() {
+        this.speedX = 3; 
+        this.deadAnimationPlayed = false; 
+        this.alertTriggered = false; 
+        this.currentState = 'walking'; 
+        this.animate();
     }
     
 }

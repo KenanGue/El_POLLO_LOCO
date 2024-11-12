@@ -31,15 +31,11 @@ canvas {
     margin-top: 16px;
     font-size: 24px;
     background-color: #FFA500;
-    /* Orange-Gelb, wie die Schrift im Bild */
     color: black;
-    /* Schwarzer Text */
     border: none;
     cursor: pointer;
     border-radius: 10px;
-    /* Abgerundete Ecken */
     font-family: western;
-    /* Gleiche Schriftart wie im Bild */
 }
 
 .startButton:hover {
@@ -117,6 +113,10 @@ canvas {
     margin-top: 16px;
 }
 
+#restartButton {
+    display: none;
+}
+
 .overlay {
     position: fixed;
     top: 0;
@@ -138,33 +138,33 @@ canvas {
     max-width: 400px;
     max-height: 70vh;
     overflow-y: auto;
-    position: relative; /* Positionierung für den Button relativ zu diesem Container */
+    position: relative; 
     text-align: left;
 }
 
 .overlay-content::-webkit-scrollbar {
-    width: 4px; /* Breite des Scrollbalkens */
+    width: 4px; 
 }
 
 .overlay-content::-webkit-scrollbar-track {
-    background: transparent; /* Hintergrund der Spur auf transparent setzen */
+    background: transparent; 
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
 .overlay-content::-webkit-scrollbar-thumb {
-    background-color: black; /* Farbe des Scrollbalkens */
-    border-radius: 8px; /* Abgerundete Ecken */
-    border: none; /* Kein Rand */
+    background-color: black;
+    border-radius: 8px; 
+    border: none; 
 }
 
-/* Entferne die Pfeilsymbole */
+
 .overlay-content::-webkit-scrollbar-button {
-    display: none; /* Pfeilsymbole ausblenden */
+    display: none; 
 }
 
 .close-btn {
-    position: absolute; /* Absolut innerhalb des .overlay-content Containers */
+    position: absolute;
     top: 10px;
     right: 10px;
     font-size: 20px;
@@ -175,7 +175,7 @@ canvas {
 
 .reload-button {
     position: absolute;
-    top: 60%; /* Platziere den Button unterhalb des Game Over-Bildes */
+    top: 60%; 
     left: 50%;
     transform: translate(-50%, -50%);
     width: 50px;
@@ -186,6 +186,5 @@ canvas {
 }
 
 .reload-button:hover {
-    transform: translate(-50%, -50%) rotate(360deg); /* Drehe den Button bei Hover */
-     /* Invertiere die Farben, um den Button weiß zu machen */
+    transform: translate(-50%, -50%) rotate(360deg); 
 }

@@ -1,3 +1,6 @@
+/**
+ * MovableObject class defines behavior for game objects that can move, including applying gravity and collision detection.
+ */
 class MovableObject extends DrawableObject {
     speed = 0.15;
     otherDirection = false;
@@ -8,6 +11,9 @@ class MovableObject extends DrawableObject {
     lastHit = 0;
     invulnerableDuration = 1000; 
 
+    /**
+     * Applies gravity to the object, causing it to fall if above ground level.
+     */
     applyGravity() {
         setInterval(() => {
             if (this.isAboveGround() || this.speedY > 0) {
@@ -17,6 +23,10 @@ class MovableObject extends DrawableObject {
         }, 1000 / 25);
     }
 
+    /**
+     * Checks if the object is above ground level.
+     * @returns {boolean} True if above ground.
+     */
     isAboveGround() {
         if (this instanceof ThrowableObject) {
             return true;
@@ -25,6 +35,11 @@ class MovableObject extends DrawableObject {
     }
     }
 
+    /**
+     * Checks for collision with another MovableObject.
+     * @param {MovableObject} mo - The object to check collision with.
+     * @returns {boolean} True if colliding with the specified object.
+     */
     isColliding(mo) {
         return this.x + this.width > mo.x &&
         this.y + this.height > mo.y &&
@@ -32,29 +47,42 @@ class MovableObject extends DrawableObject {
         this.y < mo.y + mo.height;
     }
 
+    /**
+     * Reduces the object's energy upon being hit, with a cooldown period for invulnerability.
+     */
     hit() {
         let currentTime = new Date().getTime();
-
-        // Prüfen, ob genug Zeit seit dem letzten Treffer vergangen ist (Unverwundbarkeitsphase)
         if (currentTime - this.lastHit > this.invulnerableDuration) {
-            this.energy -= 10;  // Reduziere die Energie um 10 Punkte
+            this.energy -= 10;  
             if (this.energy < 0) {
                 this.energy = 0;
             } else {
-                this.lastHit = currentTime;  // Setze den Zeitpunkt des letzten Treffers neu
+                this.lastHit = currentTime;  
             }
         }
     }
     
+    /**
+     * Checks if the object is currently hurt (i.e., recently hit).
+     * @returns {boolean} True if the object is hurt.
+     */
     isHurt() {
         let timePassed = new Date().getTime() - this.lastHit;
-        return timePassed / 1000 < 1;  // Rückgabe, ob der Charakter noch in der Unverwundbarkeitsphase ist
+        return timePassed / 1000 < 1;  
     }
     
+    /**
+     * Checks if the object is dead (energy is 0).
+     * @returns {boolean} True if the object is dead.
+     */
     isDead() {
         return this.energy == 0;
     }
 
+    /**
+     * Plays an animation by cycling through the provided image array.
+     * @param {Array<string>} images - Array of image paths to animate.
+     */
     playAnimation(images) {
         let i = this.currentImage % images.length;
         let path = images[i];
@@ -62,22 +90,32 @@ class MovableObject extends DrawableObject {
         this.currentImage++;
     }
 
+    /**
+     * Moves the object to the right, applying speed.
+     */
     moveRight() {
         this.x += this.speedX > 0 ? this.speedX : this.speed;
     }
 
+    /**
+     * Moves the object to the left, applying speed.
+     */
     moveLeft() {
         this.x -= this.speedX > 0 ? this.speedX : this.speed;
     }
 
-
+    /**
+     * Makes the object jump by setting its vertical speed.
+     */
     jump() {
         this.speedY = 30;
     }
 
+    /**
+     * Marks the object for removal from the game world.
+     */
     removeFromWorld() {
-        // Beispielhafte Implementierung, um das Objekt aus der Spielwelt zu entfernen
-        this.markedForRemoval = true;  // Markiere das Objekt zur Entfernung
+        this.markedForRemoval = true; 
     }
 
 }
