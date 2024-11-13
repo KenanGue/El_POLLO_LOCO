@@ -22,37 +22,42 @@ h1 {
 }
 
 canvas {
-    background-color: black;
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
-.startButton {
-    width: 120px;
+.menu {
+    position: absolute;
+    bottom: 8px;
+    z-index: 100;
+}
+
+.iconSize {
+    width: 40px;
     height: 40px;
-    margin-top: 16px;
-    font-size: 24px;
-    background-color: #FFA500;
-    color: black;
-    border: none;
-    cursor: pointer;
-    border-radius: 10px;
-    font-family: western;
 }
 
-.startButton:hover {
-    font-size: 28px;
-    color: white;
+.buttons {
+    background: none;
+    border: none;
+}
+
+.buttons:hover {
+    filter: invert();
+    cursor: pointer;
 }
 
 .content-position {
+    position: relative;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .button-position {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 16px;
+    gap: 8px;
 }
 
 .soundButton {
@@ -73,8 +78,8 @@ canvas {
 }
 
 .backButton {
-    width: 58px;
-    height: 58px;
+    width: 50px;
+    height: 50px;
     background-color: transparent;
     border: none;
     cursor: pointer;
@@ -138,29 +143,29 @@ canvas {
     max-width: 400px;
     max-height: 70vh;
     overflow-y: auto;
-    position: relative; 
+    position: relative;
     text-align: left;
 }
 
 .overlay-content::-webkit-scrollbar {
-    width: 4px; 
+    width: 4px;
 }
 
 .overlay-content::-webkit-scrollbar-track {
-    background: transparent; 
+    background: transparent;
     margin-top: 10px;
     margin-bottom: 10px;
 }
 
 .overlay-content::-webkit-scrollbar-thumb {
     background-color: black;
-    border-radius: 8px; 
-    border: none; 
+    border-radius: 8px;
+    border: none;
 }
 
 
 .overlay-content::-webkit-scrollbar-button {
-    display: none; 
+    display: none;
 }
 
 .close-btn {
@@ -175,7 +180,7 @@ canvas {
 
 .reload-button {
     position: absolute;
-    top: 60%; 
+    top: 60%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 50px;
@@ -186,5 +191,5 @@ canvas {
 }
 
 .reload-button:hover {
-    transform: translate(-50%, -50%) rotate(360deg); 
+    transform: translate(-50%, -50%) rotate(360deg);
 }

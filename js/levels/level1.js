@@ -3,14 +3,17 @@
  * Defines level length, number of chickens, background objects, and clouds.
  */
 const levelLength = 7200;
-const numChickens = 12;
+const numChickens = 15;
 const backgroundLength = 7200;
 const cloudGap = 500;
+let level1;
 
 /**
  * The main level1 object which includes enemies, clouds, and background objects.
  */
-const level1 = new Level(
+function initLevel() {
+    startButton = document.getElementById('startButton');
+level1 = new Level(
     [
         ...generateRandomChickenPositions(numChickens, levelLength),
         new Endboss()
@@ -97,4 +100,5 @@ function generateRandomChickenPositions(numChickens, levelLength) {
         }
     }
     return chickens;
+}
 }

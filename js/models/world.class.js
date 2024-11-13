@@ -41,6 +41,7 @@ class World {
      * Displays the Game Over screen and sets the game-over status.
      */
     showGameOverScreen() {
+        this.clearAllIntervals();
         this.introOutro.showGameOverScreen();
         this.showingGameOverScreen = true;
     }
@@ -49,6 +50,7 @@ class World {
     * Displays the Win screen and sets the win status.
     */
     showWinScreen() {
+        this.clearAllIntervals();
         this.introOutro.showWinScreen();
         this.showingWinScreen = true;
     }
@@ -96,7 +98,9 @@ class World {
                     this.character.hit();
                     this.statusBarHealth.setPercentage(this.character.energy);
                     if (this.character.energy <= 0) {
-                        this.showGameOverScreen();
+                        setTimeout(() => {
+                            this.showGameOverScreen();
+                        }, 1000);
                         return;
                     }
                 }
@@ -117,8 +121,9 @@ class World {
                             this.character.hit();
                             this.statusBarHealth.setPercentage(this.character.energy);
                             if (this.character.energy <= 0) {
-                                this.showGameOverScreen();
-                                this.stopGame();
+                                setTimeout(() => {
+                                    this.showGameOverScreen();
+                                }, 1000);
                                 return;
                             }
                         }
@@ -152,8 +157,13 @@ class World {
         });
 
         let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
-        if (endboss && endboss.isDead()) {
-            this.showWinScreen();
+        if (endboss) {
+            if (endboss.isDead() && !this.showingWinScreen) {
+                setTimeout(() => {
+                    this.showWinScreen();
+                }, 1000);
+            }
+            this.addToMap(endboss);
         }
     }
 
@@ -225,7 +235,6 @@ class World {
         if (this.character.x >= endboss.x - 700) {
             this.addToMap(this.statusBarEndboss);
         }
-
         this.ctx.translate(this.camera_x, 0);
         this.addToMap(endboss);
         if (this.character.x >= endboss.x - 300) {
@@ -298,13 +307,5 @@ class World {
      */
     clearAllIntervals() {
         for (let i = 1; i < 9999; i++) window.clearInterval(i);
-    }
-
-    /**
-     * Stops the game by clearing intervals and displaying the game-over screen.
-     */
-    stopGame() {
-        this.clearAllIntervals();
-        this.showingGameOverScreen = true;
     }
 }

@@ -31,7 +31,24 @@ function showIntro() {
  */
 function startGame() {
     document.getElementById('startButton').style.display = 'none';
-    world = new World(canvas, keyboard);  
+    initLevel();
+    world = new World(canvas, keyboard);
+
+    // Mute-Zustand aus dem localStorage anwenden
+    isMuted = localStorage.getItem('isMuted') === 'true';
+    muteCharacterSounds(isMuted); // Wendet die Stummschaltung auf alle Charakter-Sounds an
+    document.getElementById('soundIcon').src = isMuted ? 'img/icons/volume-off.png' : 'img/icons/volume.png';
+    playBackgroundMusic();
+}
+
+function restartGame() {
+    world.clearAllIntervals(); 
+    world = null; 
+    initLevel();
+    world = new World(canvas, keyboard); 
+    isMuted = localStorage.getItem('isMuted') === 'true';
+    muteCharacterSounds(isMuted); 
+    document.getElementById('soundIcon').src = isMuted ? 'img/icons/volume-off.png' : 'img/icons/volume.png';
     playBackgroundMusic();
 }
 
@@ -40,6 +57,7 @@ function startGame() {
  */
 function playBackgroundMusic() {
     const audioElement = document.getElementById('backgroundAudio');
+    audioElement.muted = isMuted; // Stummgeschaltet starten
     audioElement.play().catch(error => {
         console.error('Autoplay wurde blockiert. Benutzerinteraktion erforderlich:', error);
     });
@@ -81,7 +99,6 @@ function muteCharacterSounds(mute) {
         console.error('Character wurde nicht gefunden.');
         return;
     }
-
     character.walking_sound.muted = mute;
     character.jumping_sound.muted = mute;
     character.dead_sound.muted = mute;
