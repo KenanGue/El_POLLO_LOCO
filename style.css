@@ -193,3 +193,37 @@ canvas {
 .reload-button:hover {
     transform: translate(-50%, -50%) rotate(360deg);
 }
+
+.mobileButtons{
+    background: none;
+    border: none;
+}
+
+.mobileButtons:hover {
+    cursor: pointer;
+    filter: invert();
+}
+
+.mobileGamePadLeft {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    z-index: 100;
+}
+
+.mobileGamePadRight {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    z-index: 100;
+}
+
+.mobileButtonsPosition{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobileButtonsSize {
+    width: 48px;
+}
