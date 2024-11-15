@@ -1,7 +1,7 @@
 let canvas;
 let world;
-let keyboard = new Keyboard();
-let isMuted = false;  
+let keyboard;
+let isMuted = false;
 let startScreen = 'img/9_intro_outro_screens/start/startscreen_1.png';
 
 /**
@@ -9,8 +9,10 @@ let startScreen = 'img/9_intro_outro_screens/start/startscreen_1.png';
  */
 function init() {
     canvas = document.getElementById('canvas');
-    showIntro();  
-    setupSoundButton();  
+    keyboard = new Keyboard();
+    keyboard.bindBtsPressEvents(); // Sicherstellen, dass die Buttons gebunden werden
+    showIntro();
+    setupSoundButton();
 }
 
 /**
@@ -33,21 +35,19 @@ function startGame() {
     document.getElementById('startButton').style.display = 'none';
     initLevel();
     world = new World(canvas, keyboard);
-
-    // Mute-Zustand aus dem localStorage anwenden
     isMuted = localStorage.getItem('isMuted') === 'true';
-    muteCharacterSounds(isMuted); // Wendet die Stummschaltung auf alle Charakter-Sounds an
+    muteCharacterSounds(isMuted);
     document.getElementById('soundIcon').src = isMuted ? 'img/icons/volume-off.png' : 'img/icons/volume.png';
     playBackgroundMusic();
 }
 
 function restartGame() {
-    world.clearAllIntervals(); 
-    world = null; 
+    world.clearAllIntervals();
+    world = null;
     initLevel();
-    world = new World(canvas, keyboard); 
+    world = new World(canvas, keyboard);
     isMuted = localStorage.getItem('isMuted') === 'true';
-    muteCharacterSounds(isMuted); 
+    muteCharacterSounds(isMuted);
     document.getElementById('soundIcon').src = isMuted ? 'img/icons/volume-off.png' : 'img/icons/volume.png';
     playBackgroundMusic();
 }
@@ -57,7 +57,7 @@ function restartGame() {
  */
 function playBackgroundMusic() {
     const audioElement = document.getElementById('backgroundAudio');
-    audioElement.muted = isMuted; // Stummgeschaltet starten
+    audioElement.muted = isMuted; 
     audioElement.play().catch(error => {
         console.error('Autoplay wurde blockiert. Benutzerinteraktion erforderlich:', error);
     });
@@ -81,7 +81,7 @@ function toggleSound() {
         console.error('Audio-Element mit ID "backgroundAudio" wurde nicht gefunden.');
         return;
     }
-    isMuted = !isMuted; 
+    isMuted = !isMuted;
     audioElement.muted = isMuted;
     if (world && world.character) {
         muteCharacterSounds(isMuted);
@@ -112,44 +112,3 @@ function backToStart() {
     location.reload();
 }
 
-window.addEventListener("keydown", (e) => {
-    if (e.keyCode == 39) {
-        keyboard.RIGHT = true;
-    }
-    if (e.keyCode == 37) {
-        keyboard.LEFT = true;
-    }
-    if (e.keyCode == 38) {
-        keyboard.UP = true;
-    }
-    if (e.keyCode == 40) {
-        keyboard.DOWN = true;
-    }
-    if (e.keyCode == 32) {
-        keyboard.SPACE = true;
-    }
-    if (e.keyCode == 68) {
-        keyboard.D = true;
-    }
-});
-
-window.addEventListener("keyup", (e) => {
-    if (e.keyCode == 39) {
-        keyboard.RIGHT = false;
-    }
-    if (e.keyCode == 37) {
-        keyboard.LEFT = false;
-    }
-    if (e.keyCode == 38) {
-        keyboard.UP = false;
-    }
-    if (e.keyCode == 40) {
-        keyboard.DOWN = false;
-    }
-    if (e.keyCode == 32) {
-        keyboard.SPACE = false;
-    }
-    if (e.keyCode == 68) {
-        keyboard.D = false;
-    }
-});

@@ -41,10 +41,15 @@ class ThrowableObject extends MovableObject {
         this.speedY = 30;
         this.applyGravity();
         this.throwInterval = setInterval(() => {
-            this.x += 10;  
+            this.x += 10;
         }, 25);
+    
+        // Statusleiste hier reduzieren, wenn die Flasche tatsächlich in Bewegung ist
+        if (this.world) {
+            this.world.statusBarBottles.useItem(); // Nur einmal pro Flaschenobjekt
+        }
     }
-
+    
     /**
      * Starts the rotation animation for the throwable object.
      */
@@ -58,13 +63,18 @@ class ThrowableObject extends MovableObject {
      * Plays the splash animation when the object hits a target, then hides it after the animation ends.
      */
     playSplashAnimation() {
-        clearInterval(this.rotationInterval); 
-        clearInterval(this.throwInterval);    
-        this.speedY = 0; 
-        this.playAnimation(this.IMAGES_SPLASH);  
-
-        setTimeout(() => {
-            this.isVisible = false;  
-        }, 1000); 
+        clearInterval(this.rotationInterval);
+        clearInterval(this.throwInterval);
+        this.speedY = 0;
+        let frameIndex = 0;
+            this.splashInterval = setInterval(() => {
+            if (frameIndex < this.IMAGES_SPLASH.length) {
+                this.img = this.imageCache[this.IMAGES_SPLASH[frameIndex]];
+                frameIndex++;
+            } else {
+                clearInterval(this.splashInterval); 
+                this.isVisible = false; 
+            }
+        }, 100); 
     }
 }

@@ -76,16 +76,14 @@ class World {
     * Checks if a throwable object (bottle) can be thrown and initiates its movement.
     */
     checkThrowObjects() {
-        if (this.keyboard.D && !this.bottleThrown) {
+        if (this.keyboard.D && this.statusBarBottles.currentItems > 0) {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
-            this.bottleThrown = true;
-            setTimeout(() => {
-                this.bottleThrown = false;
-            }, 1000);
+            this.statusBarBottles.useItem(); // Reduziert die Anzahl der Flaschen im Inventar
+            console.log("Neue Flasche geworfen");
         }
     }
-
+    
     /**
     * Checks for collisions between the character, enemies, and collectibles, handling effects like
     * health reduction or collectible gathering.
@@ -134,10 +132,13 @@ class World {
         this.throwableObjects.forEach((bottle, bottleIndex) => {
             this.level.enemies.forEach((enemy) => {
                 if (bottle.isColliding(enemy) && enemy instanceof Endboss && !enemy.isDead()) {
+                    console.log("Bottle collided with Endboss");
                     bottle.playSplashAnimation();
                     enemy.hit();
                     this.statusBarEndboss.setPercentage(enemy.energy);
-                    this.throwableObjects.splice(bottleIndex, 1);
+                    setTimeout(() => {
+                        this.throwableObjects.splice(bottleIndex, 1);
+                    }, 1000);
                 }
             });
         });
@@ -155,7 +156,6 @@ class World {
             }
             return true;
         });
-
         let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
         if (endboss) {
             if (endboss.isDead() && !this.showingWinScreen) {
@@ -187,7 +187,7 @@ class World {
      */
     createBottles() {
         let totalDistance = 4800;
-        let numBottles = 5;
+        let numBottles = 10;
         let groundY = 310;
         for (let i = 0; i < numBottles; i++) {
             let xPosition = (totalDistance / numBottles) * (i + 1);

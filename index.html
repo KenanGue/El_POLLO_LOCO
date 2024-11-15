@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style.css">
     <link rel="icon" type="image" href="img/4_enemie_boss_chicken/1_walk/G1.png">
+    <link rel="stylesheet" href="style.css">
     <title>El pollo loco</title>
     <script src="js/models/drawable-object.class.js"></script>
     <script src="js/models/movable-object.class.js"></script>
@@ -28,8 +28,8 @@
 </head>
 
 <body onload="init()">
-
-    <h1>EL POLLO LOCO</h1>
+    <h1 id="gameName">EL POLLO LOCO</h1>
+    <img id="rotateHint" src="img/icons/rotate.png" alt="Bitte das Gerät quer halten">
     <div class="content-position">
         <canvas id="canvas" width="720" height="480"></canvas>
         <div class="menu">
@@ -47,13 +47,13 @@
                     <img class="iconSize" src="img/icons/reload.png">
                 </button>
                 <button id="reloadButton" class="reloadButton" onclick="setupReloadButton()">
-                    <img id="reloadIcon" src="img/icons/reload.png">
+                    <img id="reloadIcon" class="iconSize" src="img/icons/reload.png">
                 </button>
                 <button id="soundButton" class="soundButton">
-                    <img id="soundIcon" src="img/icons/volume.png" alt="Sound On">
+                    <img id="soundIcon" class="iconSize" src="img/icons/volume.png" alt="Sound On">
                 </button>
                 <button id="backToStart" class="backButton" onclick="backToStart()">
-                    <img id="backIcon" src="img/icons/back-arrow.png">
+                    <img id="backIcon" class="iconSize" src="img/icons/heim.png">
                 </button>
             </div>
         </div>
@@ -129,19 +129,20 @@
 
             <p><strong>Haftung für Links</strong></p>
             <p>
-                Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss haben.
+                Unser Angebot enthält Links zu externen Websites Dritter, auf deren Inhalte wir keinen Einfluss
+                haben.
                 Deshalb können wir für diese fremden Inhalte auch keine Gewähr übernehmen.
             </p>
 
             <p><strong>Urheberrecht</strong></p>
             <p>
-                Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem deutschen
+                Die durch die Seitenbetreiber erstellten Inhalte und Werke auf diesen Seiten unterliegen dem
+                deutschen
                 Urheberrecht.
             </p>
 
         </div>
     </div>
-
 </body>
 
 </html>

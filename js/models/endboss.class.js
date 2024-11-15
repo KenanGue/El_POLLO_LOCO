@@ -75,20 +75,19 @@ class Endboss extends MovableObject {
      */
     hit() {
         if (!this.isDead() && !this.hitAlready) {
-            this.energy -= Math.min(20, this.energy);  
-            this.energy = Math.max(0, this.energy); 
+            this.energy -= Math.min(20, this.energy);  // Schaden pro Treffer auf 10 reduzieren
+            this.energy = Math.max(0, this.energy);
             this.hitAlready = true;
-            this.changeState('hurt');  
+            this.changeState('hurt');
             setTimeout(() => {
-                this.hitAlready = false;
+                this.hitAlready = false; // Verzögertes Zurücksetzen für seltenere Treffer
                 if (!this.isDead()) {
-                    this.changeState('attack');  
+                    this.changeState('attack');
                 }
-            }, 500);  
-        } else if (this.isDead()) {
+            }, 1000); // Längere Verzögerung, um Dauerschrei zu vermeiden
         }
     }
-
+    
     /**
      * Checks if the endboss is dead (energy is 0) and initiates the death animation.
      * Removes the endboss from the world after the animation finishes.
