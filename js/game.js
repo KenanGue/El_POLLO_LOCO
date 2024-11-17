@@ -103,6 +103,11 @@ function muteCharacterSounds(mute) {
     character.jumping_sound.muted = mute;
     character.dead_sound.muted = mute;
     character.hurt_sound.muted = mute;
+    const gameSounds = world;
+    gameSounds.pickUpBottleSound.muted = mute;
+    gameSounds.pickUpCoinSound.muted = mute;
+    gameSounds.chickenDead.muted = mute;
+    gameSounds.bossChicken.muted = mute;
 }
 
 /**

@@ -11,6 +11,8 @@ class CollectibleObjects extends MovableObject {
         'img/6_salsa_bottle/2_salsa_bottle_on_ground.png'
     ];
 
+    pickUpBottleSound = new Audio('audio/bottle.mp3');
+
     /**
      * Initializes a collectible object at a specified position and of a specified type.
      * @param {number} x - The x-coordinate of the collectible.
