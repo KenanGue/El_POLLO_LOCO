@@ -1,6 +1,6 @@
 @font-face {
     font-family: 'western';
-    src: url('/fonts/western.TTF');
+    src: url('fonts/western.TTF');
 }
 
 body {
@@ -12,7 +12,7 @@ body {
     align-items: center;
     background-image: url('img/desert.png');
     background-position: center;
-    font-family: western;
+    font-family: 'western';
 }
 
 h1 {
@@ -23,19 +23,6 @@ h1 {
 
 canvas {
     display: block;
-}
-
-#rotateHint {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 9999;
-    text-align: center;
 }
 
 .menu {
@@ -224,6 +211,41 @@ canvas {
     width: 48px;
 }
 
+#rotateHint {
+    display: none;
+    text-align: center;
+    font-size: 18px;
+    padding: 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    width: 350px;
+}
+
+#mobileButtons {
+    display: none; 
+    position: fixed;
+    bottom: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    z-index: 1000;
+}
+
+@media only screen and (orientation: landscape) {
+    #rotateHint {
+        display: none; 
+    }
+}
+
+@media only screen and (orientation: portrait) {
+    #rotateHint {
+        display: block; 
+    }
+}
+
 @media only screen and (orientation: landscape) and (max-width: 950px) {
     canvas {
         width: 100vw;
@@ -243,10 +265,6 @@ canvas {
     #rotateHint {
         display: none;
     }
-}
-
-#mobileButtons {
-    display: none;
 }
 
 @media only screen and (max-width: 950px) {

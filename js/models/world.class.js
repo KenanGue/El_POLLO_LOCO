@@ -87,7 +87,7 @@ class World {
         if (this.keyboard.D && this.statusBarBottles.currentItems > 0) {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
-            this.statusBarBottles.useItem(); // Reduziert die Anzahl der Flaschen im Inventar
+            this.statusBarBottles.useItem(); 
             console.log("Neue Flasche geworfen");
         }
     }
@@ -147,7 +147,6 @@ class World {
      * @param {number} enemyIndex - The index of the chicken in the enemy array.
      */
     handleChickenCollision(enemy, enemyIndex) {
-        if (this.character.x >= this.level.enemies[this.level.enemies.length - 1].x - 300) return;
 
         if (this.character.isColliding(enemy)) {
             if (this.character.speedY < 0 && this.character.y + this.character.height * 0.9 < enemy.y) {
@@ -200,7 +199,7 @@ class World {
                 this.pickUpBottleSound.play();
                 return false;
             }
-            if (collectible instanceof CollectibleObjects && collectible.type === 'coin' && this.character.isColliding(collectible)) {
+            if (collectible instanceof CollectibleObjects && collectible.type === 'coin' && this.character.isColliding(collectible, true)) {
                 this.statusBarCoins.collectItem();
                 this.pickUpCoinSound.play();
                 return false;
@@ -208,7 +207,7 @@ class World {
             return true;
         });
     }
-
+    
     /**
      * Checks the current state of the endboss.
      * Displays the win screen if the endboss is defeated and ensures the endboss is drawn on the canvas.
@@ -232,7 +231,7 @@ class World {
         let totalDistance = 5000;
         let numColletibles = 10;
         let minY = 80;
-        let maxY = 250;
+        let maxY = 160;
         for (let i = 0; i < numColletibles; i++) {
             let xPosition = (totalDistance / numColletibles) * (i + 1);
             let yPosition = Math.random() * (maxY - minY) + minY;
@@ -361,7 +360,6 @@ class World {
             self.draw();
         });
     }
-
 
     /**
      * Adds multiple objects to the game map by drawing each object in the provided list.

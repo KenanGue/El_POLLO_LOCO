@@ -43,10 +43,8 @@ class ThrowableObject extends MovableObject {
         this.throwInterval = setInterval(() => {
             this.x += 10;
         }, 25);
-    
-        // Statusleiste hier reduzieren, wenn die Flasche tatsächlich in Bewegung ist
         if (this.world) {
-            this.world.statusBarBottles.useItem(); // Nur einmal pro Flaschenobjekt
+            this.world.statusBarBottles.useItem();
         }
     }
     

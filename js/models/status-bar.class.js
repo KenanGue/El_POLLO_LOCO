@@ -52,7 +52,6 @@ class StatusBar extends DrawableObject {
         super();
         this.type = type;
         this.maxItems = maxItems; 
-
         if (type === 'health') {
             this.loadImages(this.IMAGES_HEALTH);
             this.setPercentage(100);  
@@ -87,6 +86,7 @@ class StatusBar extends DrawableObject {
             let percentage = (this.currentItems / this.maxItems) * 100;
             this.setPercentage(percentage);  
         }
+        
     }
 
     /**

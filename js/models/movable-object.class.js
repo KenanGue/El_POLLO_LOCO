@@ -40,12 +40,18 @@ class MovableObject extends DrawableObject {
      * @param {MovableObject} mo - The object to check collision with.
      * @returns {boolean} True if colliding with the specified object.
      */
-    isColliding(mo) {
-        return this.x + this.width > mo.x &&
-        this.y + this.height > mo.y &&
-        this.x < mo.x + mo.width &&
-        this.y < mo.y + mo.height;
+    isColliding(mo, fromBelow = false) {
+        const colliding = this.x + this.width > mo.x &&
+                          this.y + this.height > mo.y &&
+                          this.x < mo.x + mo.width &&
+                          this.y < mo.y + mo.height;
+        if (fromBelow) {
+            return colliding && this.speedY > 0 && this.y + this.height < mo.y + mo.height;
+        }
+        return colliding;
     }
+    
+    
 
     /**
      * Reduces the object's energy upon being hit, with a cooldown period for invulnerability.
