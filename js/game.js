@@ -32,7 +32,7 @@ function handleOrientation() {
  * Detects if the device is touch-enabled.
  */
 function isTouchDevice() {
-    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    return navigator.maxTouchPoints > 0;
 }
 
 /**
@@ -51,12 +51,11 @@ function initTouchSettings() {
 function init() {
     canvas = document.getElementById('canvas');
     keyboard = new Keyboard();
-    keyboard.bindBtsPressEvents(); 
+    keyboard.bindBtsPressEvents();
     showIntro();
     setupSoundButton();
-    initTouchSettings(); 
+    initTouchSettings();
 }
-
 
 /**
  * Displays the introductory screen with the game’s start image.
@@ -83,11 +82,6 @@ function startGame() {
     muteCharacterSounds(isMuted);
     document.getElementById('soundIcon').src = isMuted ? 'img/icons/volume-off.png' : 'img/icons/volume.png';
     playBackgroundMusic();
-    if (isTouchDevice() && document.body.requestFullscreen) {
-        document.body.requestFullscreen().catch((err) => {
-            console.error('Fullscreen mode could not be activated:', err);
-        });
-    }
 }
 
 /**
@@ -104,6 +98,8 @@ function restartGame() {
     world = new World(canvas, keyboard);
     isMuted = localStorage.getItem('isMuted') === 'true';
     muteCharacterSounds(isMuted);
+    adjustWorldSoundVolumes();
+    adjustCharacterSoundVolumes();
     document.getElementById('soundIcon').src = isMuted ? 'img/icons/volume-off.png' : 'img/icons/volume.png';
     playBackgroundMusic();
 }
@@ -114,7 +110,7 @@ function restartGame() {
 function playBackgroundMusic() {
     const audioElement = document.getElementById('backgroundAudio');
     document.getElementById('backgroundAudio').volume = 0.3;
-    audioElement.muted = isMuted; 
+    audioElement.muted = isMuted;
     audioElement.play().catch(error => {
         console.error('Autoplay wurde blockiert. Benutzerinteraktion erforderlich:', error);
     });
@@ -187,10 +183,10 @@ function muteCharacterSounds(mute) {
 function adjustCharacterSoundVolumes() {
     const character = world.character;
     if (character) {
-        if (character.walking_sound) character.walking_sound.volume = 0.1;
-        if (character.jumping_sound) character.jumping_sound.volume = 0.1;
-        if (character.dead_sound) character.dead_sound.volume = 0.1;
-        if (character.hurt_sound) character.hurt_sound.volume = 0.1;
+        if (character.walking_sound) character.walking_sound.volume = 0.4;
+        if (character.jumping_sound) character.jumping_sound.volume = 0.2;
+        if (character.dead_sound) character.dead_sound.volume = 0.3;
+        if (character.hurt_sound) character.hurt_sound.volume = 0.3;
     } else {
         console.error('Character wurde nicht gefunden.');
     }

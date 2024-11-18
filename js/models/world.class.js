@@ -44,24 +44,81 @@ class World {
     }
 
     /**
-     * Displays the Game Over screen and sets the game-over status.
-     */
+    * Displays the Game Over screen, sets the game-over status, and mutes all sounds except the game-over sound after 2 seconds.
+    */
     showGameOverScreen() {
         this.clearAllIntervals();
         this.introOutro.showGameOverScreen();
         this.showingGameOverScreen = true;
         this.loseSound.play();
+        setTimeout(() => {
+            this.muteAllSoundsExceptGameOver();
+        }, 1000);
     }
 
+
     /**
-    * Displays the Win screen and sets the win status.
+    * Displays the Win screen, sets the win status, and mutes all sounds except the win sound after 2 seconds.
     */
     showWinScreen() {
         this.clearAllIntervals();
         this.introOutro.showWinScreen();
         this.showingWinScreen = true;
         this.winSound.play();
+        setTimeout(() => {
+            this.muteAllSoundsExceptWin();
+        }, 2000);
     }
+
+    /**
+     * Mutes all game sounds except the win sound.
+    */
+    muteAllSoundsExceptWin() {
+        if (isMuted) {
+            muteCharacterSounds(true);
+            adjustWorldSoundVolumes();
+            const backgroundAudio = document.getElementById('backgroundAudio');
+            if (backgroundAudio) {
+                backgroundAudio.muted = true;
+            }
+            this.winSound.muted = true;
+            return;
+        }
+        isMuted = true;
+        muteCharacterSounds(true);
+        adjustWorldSoundVolumes();
+        const backgroundAudio = document.getElementById('backgroundAudio');
+        if (backgroundAudio) {
+            backgroundAudio.muted = true;
+        }
+        this.winSound.muted = false;
+    }
+
+    /**
+     * Mutes all sounds in the game except for the game-over sound.
+    */
+    muteAllSoundsExceptGameOver() {
+        if (isMuted) {
+            muteCharacterSounds(true);
+            adjustWorldSoundVolumes();
+            const backgroundAudio = document.getElementById('backgroundAudio');
+            if (backgroundAudio) {
+                backgroundAudio.muted = true;
+            }
+            this.loseSound.muted = true; 
+            return;
+        }
+        isMuted = true;
+        muteCharacterSounds(true);
+        adjustWorldSoundVolumes();
+        const backgroundAudio = document.getElementById('backgroundAudio');
+        if (backgroundAudio) {
+            backgroundAudio.muted = true;
+        }
+        this.loseSound.muted = false; 
+    }
+
+
 
     /**
     * Links the character with the game world, allowing for interactions within the game.
@@ -87,7 +144,7 @@ class World {
         if (this.keyboard.D && this.statusBarBottles.currentItems > 0) {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
-            this.statusBarBottles.useItem(); 
+            this.statusBarBottles.useItem();
             console.log("Neue Flasche geworfen");
         }
     }
@@ -207,7 +264,7 @@ class World {
             return true;
         });
     }
-    
+
     /**
      * Checks the current state of the endboss.
      * Displays the win screen if the endboss is defeated and ensures the endboss is drawn on the canvas.

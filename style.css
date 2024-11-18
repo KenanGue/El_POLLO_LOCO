@@ -232,6 +232,15 @@ canvas {
     display: flex;
     justify-content: space-around;
     z-index: 1000;
+    
+}
+
+#mobileRight {
+    margin-left: 16px;
+}
+
+#mobileBottle {
+    margin-left: 16px;
 }
 
 @media only screen and (orientation: landscape) {

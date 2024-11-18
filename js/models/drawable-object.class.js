@@ -42,9 +42,6 @@ class DrawableObject {
         
     }
     
-    
-    
-
     /**
      * Loads multiple images and caches them, useful for animations.
      * @param {Array<string>} arr - Array of image paths to load.
