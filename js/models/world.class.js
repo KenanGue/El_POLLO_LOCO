@@ -105,7 +105,7 @@ class World {
             if (backgroundAudio) {
                 backgroundAudio.muted = true;
             }
-            this.loseSound.muted = true; 
+            this.loseSound.muted = true;
             return;
         }
         isMuted = true;
@@ -115,10 +115,8 @@ class World {
         if (backgroundAudio) {
             backgroundAudio.muted = true;
         }
-        this.loseSound.muted = false; 
+        this.loseSound.muted = false;
     }
-
-
 
     /**
     * Links the character with the game world, allowing for interactions within the game.
@@ -145,7 +143,6 @@ class World {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
             this.statusBarBottles.useItem();
-            console.log("Neue Flasche geworfen");
         }
     }
 
@@ -197,31 +194,89 @@ class World {
 
     /**
      * Handles collision logic between the character and chickens.
-     * Checks whether the character jumps on or collides with a chicken.
-     * Removes the chicken if jumped on or reduces character health if collided directly.
+     * Splits the logic into smaller functions for clarity.
      * 
      * @param {Chicken|SmallChicken} enemy - The chicken object to check for collisions.
      * @param {number} enemyIndex - The index of the chicken in the enemy array.
-     */
+    */
     handleChickenCollision(enemy, enemyIndex) {
-
-        if (this.character.isColliding(enemy)) {
-            if (this.character.speedY < 0 && this.character.y + this.character.height * 0.9 < enemy.y) {
-                enemy.die();
-                setTimeout(() => {
-                    this.level.enemies.splice(enemyIndex, 1);
-                }, 1000);
-                this.character.jump();
-                this.chickenDead.play();
+        const nearbyChickens = this.getNearbyChickens(enemy);
+        if (this.characterCollidesWithGroup(nearbyChickens)) {
+            const isJumping = this.isCharacterJumpingOnChicken(enemy);
+            if (isJumping) {
+                this.handleChickenJump(nearbyChickens);
             } else {
-                this.character.hit();
-                this.statusBarHealth.setPercentage(this.character.energy);
-                if (this.character.energy <= 0) {
-                    setTimeout(() => {
-                        this.showGameOverScreen();
-                    }, 1000);
-                }
+                this.handleChickenHit();
             }
+        }
+    }
+
+    /**
+     * Retrieves chickens near the specified enemy.
+     * 
+     * @param {Chicken|SmallChicken} enemy - The reference chicken.
+     * @returns {Array} List of nearby chickens.
+     */
+    getNearbyChickens(enemy) {
+        const collisionRadius = 50;
+        return this.level.enemies.filter(e =>
+            (e instanceof Chicken || e instanceof SmallChicken) &&
+            !e.isDead &&
+            Math.abs(e.x - enemy.x) < collisionRadius
+        );
+    }
+
+    /**
+     * Checks if the character collides with any chicken in the group.
+     * 
+     * @param {Array} nearbyChickens - The group of nearby chickens.
+     * @returns {boolean} True if the character collides with any chicken.
+     */
+    characterCollidesWithGroup(nearbyChickens) {
+        return nearbyChickens.some(e => this.character.isColliding(e));
+    }
+
+    /**
+     * Determines if the character is jumping on the chicken.
+     * 
+     * @param {Chicken|SmallChicken} enemy - The chicken being checked.
+     * @returns {boolean} True if the character is jumping on the chicken.
+     */
+    isCharacterJumpingOnChicken(enemy) {
+        return (
+            this.character.speedY < 0 &&
+            this.character.y + this.character.height * 0.8 < enemy.y
+        );
+    }
+
+    /**
+     * Handles logic for when the character jumps on a group of chickens.
+     * 
+     * @param {Array} nearbyChickens - The group of chickens being jumped on.
+     */
+    handleChickenJump(nearbyChickens) {
+        nearbyChickens.forEach(chicken => {
+            chicken.die();
+            chicken.isDead = true;
+            this.character.jump();
+            this.chickenDead.play();
+            setTimeout(() => {
+                const index = this.level.enemies.indexOf(chicken);
+                if (index > -1) this.level.enemies.splice(index, 1);
+            }, 500);
+        });
+    }
+
+    /**
+     * Handles logic for when the character is hit by a chicken.
+     */
+    handleChickenHit() {
+        this.character.hit();
+        this.statusBarHealth.setPercentage(this.character.energy);
+        if (this.character.energy <= 0) {
+            setTimeout(() => {
+                this.showGameOverScreen();
+            }, 1000);
         }
     }
 
@@ -233,7 +288,6 @@ class World {
         this.throwableObjects.forEach((bottle, bottleIndex) => {
             this.level.enemies.forEach((enemy) => {
                 if (bottle.isColliding(enemy) && enemy instanceof Endboss && !enemy.isDead()) {
-                    console.log("Bottle collided with Endboss");
                     bottle.playSplashAnimation();
                     enemy.hit();
                     this.statusBarEndboss.setPercentage(enemy.energy);
@@ -332,7 +386,6 @@ class World {
    */
     draw() {
         if (this.showingWinScreen || this.showingGameOverScreen) return;
-
         this.clearCanvas();
         this.drawBackground();
         this.drawGameObjects();
@@ -378,7 +431,6 @@ class World {
         this.addToMap(this.statusBarHealth);
         this.addToMap(this.statusBarCoins);
         this.addToMap(this.statusBarBottles);
-
         let endboss = this.level.enemies[this.level.enemies.length - 1];
         if (this.character.x >= endboss.x - 700) {
             this.addToMap(this.statusBarEndboss);
@@ -393,7 +445,6 @@ class World {
         let endboss = this.level.enemies[this.level.enemies.length - 1];
         this.ctx.translate(this.camera_x, 0);
         this.addToMap(endboss);
-
         if (this.character.x >= endboss.x - 300) {
             this.chickenGenerationEnabled = false;
         }

@@ -29,7 +29,9 @@
 
 <body onload="init()">
     <h1 id="gameName">EL POLLO LOCO</h1>
-    <img id="rotateHint" src="img/icons/rotate.png" alt="Bitte das Gerät quer halten">
+    <div id="rotateHint">
+        <img src="img/icons/rotate.png" alt="Bitte das Gerät quer halten">
+    </div>
     <div class="content-position">
         <canvas id="canvas" width="720" height="480"></canvas>
         <div class="menu">
@@ -49,7 +51,7 @@
                 <button id="reloadButton" class="reloadButton" onclick="setupReloadButton()">
                     <img id="reloadIcon" class="iconSize" src="img/icons/reload.png">
                 </button>
-                <button id="soundButton" class="soundButton">
+                <button id="soundButton" class="soundButton" tabindex="-1">
                     <img id="soundIcon" class="iconSize" src="img/icons/volume.png" alt="Sound On">
                 </button>
                 <button id="backToStart" class="backButton" onclick="backToStart()">
@@ -75,7 +77,7 @@
         </div>
     </div>
     <audio id="backgroundAudio" loop>
-        <source src="audio/background-music.mp3" type="audio/mpeg" >
+        <source src="audio/background-music.mp3" type="audio/mpeg">
     </audio>
 
     <div id="gameplayOverlay" class="overlay" style="display: none;" onclick="closeGameplayOverlay(event)">

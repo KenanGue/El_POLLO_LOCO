@@ -74,10 +74,10 @@ class Character extends MovableObject {
     idleTimeThreshold = 5000;
     isDeadSoundPlayed = false;
 
-     /**
-     * Initializes the Character with animations, sounds, and applies gravity.
-     * @param {Object} world - Reference to the game world.
-     */
+    /**
+    * Initializes the Character with animations, sounds, and applies gravity.
+    * @param {Object} world - Reference to the game world.
+    */
     constructor(world) {
         super();
         this.world = world;
@@ -93,9 +93,20 @@ class Character extends MovableObject {
     }
 
     /**
-     * Animates the character based on keyboard input, performing actions like walking, jumping, and idle animations.
-     */
+     * Animates the character based on keyboard input.
+     * Initializes all animation intervals.
+    */
     animate() {
+        this.setupIdleAnimation();
+        this.setupWalkRightAnimation();
+        this.setupWalkLeftAnimation();
+        this.setupActionAnimation();
+    }
+
+    /**
+     * Handles idle animations based on inactivity duration.
+     */
+    setupIdleAnimation() {
         this.idleAnimationInterval = setInterval(() => {
             let currentTime = new Date().getTime();
             if (!this.world.keyboard.RIGHT && !this.world.keyboard.LEFT && !this.world.keyboard.SPACE) {
@@ -108,7 +119,12 @@ class Character extends MovableObject {
                 this.lastActionTime = currentTime;
             }
         }, 100);
+    }
 
+    /**
+     * Handles walking animation and movement to the right.
+     */
+    setupWalkRightAnimation() {
         this.walkRightInterval = setInterval(() => {
             this.walking_sound.pause();
             if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
@@ -117,7 +133,12 @@ class Character extends MovableObject {
                 this.walking_sound.play();
             }
         }, 1000 / 60);
+    }
 
+    /**
+     * Handles walking animation and movement to the left, and jumping logic.
+     */
+    setupWalkLeftAnimation() {
         this.walkLeftInterval = setInterval(() => {
             if (this.world.keyboard.LEFT && this.x > 0) {
                 this.moveLeft();
@@ -130,26 +151,60 @@ class Character extends MovableObject {
             }
             this.world.camera_x = -this.x + 100;
         }, 1000 / 60);
+    }
 
+    /**
+     * Handles specific action animations like death, hurt, and jumping.
+     * Splits the logic into smaller methods for clarity.
+     */
+    setupActionAnimation() {
         this.actionInterval = setInterval(() => {
             if (this.isDead()) {
-                this.playAnimation(this.IMAGES_DEAD);
-                this.fallDown();
-                if (!this.isDeadSoundPlayed) {
-                    this.dead_sound.play();
-                    this.isDeadSoundPlayed = true;
-                }
+                this.handleDeathAnimation();
             } else if (this.isHurt()) {
-                this.playAnimation(this.IMAGES_HURT);
-                this.hurt_sound.play();
+                this.handleHurtAnimation();
             } else if (this.isAboveGround()) {
-                this.playAnimation(this.IMAGES_JUMPING);
+                this.handleJumpingAnimation();
             } else {
-                if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
-                    this.playAnimation(this.IMAGES_WALKING);
-                }
+                this.handleWalkingAnimation();
             }
         }, 50);
+    }
+
+    /**
+     * Plays the death animation and manages related logic.
+     */
+    handleDeathAnimation() {
+        this.playAnimation(this.IMAGES_DEAD);
+        this.fallDown();
+        if (!this.isDeadSoundPlayed) {
+            this.dead_sound.play();
+            this.isDeadSoundPlayed = true;
+        }
+    }
+
+    /**
+     * Plays the hurt animation and sound.
+     */
+    handleHurtAnimation() {
+        this.playAnimation(this.IMAGES_HURT);
+        this.hurt_sound.play();
+    }
+
+    /**
+     * Plays the jumping animation.
+     */
+    handleJumpingAnimation() {
+        this.playAnimation(this.IMAGES_JUMPING);
+    }
+
+    /**
+     * Plays the walking animation if the character is moving.
+     */
+    handleWalkingAnimation() {
+        if (this.world.keyboard.RIGHT || this.world.keyboard.LEFT) {
+            this.playAnimation(this.IMAGES_WALKING);
+        }
     }
 
     /**
@@ -182,7 +237,7 @@ class Character extends MovableObject {
      * Makes the character jump by setting a vertical speed.
      */
     jump() {
-        this.speedY = 30;
+        this.speedY = 31;
     }
 
     /**

@@ -2,6 +2,7 @@ let canvas;
 let world;
 let keyboard;
 let character;
+let throwableSound;
 let isMuted = false;
 let startScreen = 'img/9_intro_outro_screens/start/startscreen_1.png';
 
@@ -14,10 +15,10 @@ function handleOrientation() {
     const canvas = document.getElementById('canvas');
     function updateUI() {
         if (window.innerWidth < window.innerHeight) {
-            rotateHint.style.display = 'block';
+            rotateHint.style.display = 'flex'; 
             mobileButtons.style.display = 'none';
             canvas.style.display = 'none';
-        } else {
+        } else { 
             rotateHint.style.display = 'none';
             mobileButtons.style.display = isTouchDevice() ? 'flex' : 'none';
             canvas.style.display = 'block';
@@ -172,6 +173,7 @@ function muteCharacterSounds(mute) {
     gameSounds.bossChicken.muted = mute;
     gameSounds.winSound.muted = mute;
     gameSounds.loseSound.muted = mute;
+    ThrowableObject.muteGlassSound(mute);
 }
 
 /**
@@ -231,4 +233,5 @@ function adjustAllSoundVolumes() {
 function backToStart() {
     location.reload();
 }
+
 

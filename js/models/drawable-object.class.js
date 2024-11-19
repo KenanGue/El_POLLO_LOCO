@@ -39,7 +39,6 @@ class DrawableObject {
      * @param {CanvasRenderingContext2D} ctx - The canvas context to draw on.
      */
     drawFrame(ctx) {
-        
     }
     
     /**

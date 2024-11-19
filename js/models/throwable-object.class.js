@@ -2,6 +2,8 @@
  * ThrowableObject class represents a throwable object (e.g., bottle) with animations for rotation and splash.
  */
 class ThrowableObject extends MovableObject {
+    static glassBreakSound = new Audio('audio/glass.mp3');
+    hasPlayedGlassSound = false;
     IMAGES_BOTTLE = [
         'img/6_salsa_bottle/bottle_rotation/1_bottle_rotation.png',
         'img/6_salsa_bottle/bottle_rotation/2_bottle_rotation.png',
@@ -64,15 +66,28 @@ class ThrowableObject extends MovableObject {
         clearInterval(this.rotationInterval);
         clearInterval(this.throwInterval);
         this.speedY = 0;
+        if (!this.hasPlayedGlassSound) {
+            ThrowableObject.glassBreakSound.currentTime = 0;
+            ThrowableObject.glassBreakSound.play();
+            this.hasPlayedGlassSound = true;
+        }
         let frameIndex = 0;
-            this.splashInterval = setInterval(() => {
+        this.splashInterval = setInterval(() => {
             if (frameIndex < this.IMAGES_SPLASH.length) {
                 this.img = this.imageCache[this.IMAGES_SPLASH[frameIndex]];
                 frameIndex++;
             } else {
-                clearInterval(this.splashInterval); 
-                this.isVisible = false; 
+                clearInterval(this.splashInterval);
+                this.isVisible = false;
             }
         }, 100); 
+    }
+
+     /**
+     * Mutes or unmutes the glass break sound.
+     * @param {boolean} mute - Whether to mute (true) or unmute (false) the sound.
+     */
+     static muteGlassSound(mute) {
+        ThrowableObject.glassBreakSound.muted = mute;
     }
 }
