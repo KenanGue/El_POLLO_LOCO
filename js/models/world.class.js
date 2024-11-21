@@ -118,17 +118,6 @@ class World {
     }
 
     /**
-    * Checks if a throwable object (bottle) can be thrown and initiates its movement.
-    */
-    checkThrowObjects() {
-        if (this.keyboard.D && this.statusBarBottles.currentItems > 0) {
-            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
-            this.throwableObjects.push(bottle);
-            this.statusBarBottles.useItem();
-        }
-    }
-
-    /**
      * Creates coin collectibles along the level at specified intervals and positions.
      */
     createCoins() {
@@ -164,7 +153,9 @@ class World {
     */
     checkThrowObjects() {
         if (this.keyboard.D && !this.bottleThrown && this.statusBarBottles.currentItems > 0) {
-            let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
+            let direction = this.character.otherDirection;
+            let offsetX = direction ? -50 : 100;
+            let bottle = new ThrowableObject(this.character.x + offsetX, this.character.y + 100, direction);
             this.throwableObjects.push(bottle);
             this.bottleThrown = true;
             this.statusBarBottles.useItem();

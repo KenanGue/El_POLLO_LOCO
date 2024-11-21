@@ -24,12 +24,13 @@ class ThrowableObject extends MovableObject {
      * @param {number} x - The initial x-coordinate of the throwable object.
      * @param {number} y - The initial y-coordinate of the throwable object.
      */
-    constructor(x, y) {
+    constructor(x, y, direction) {
         super().loadImage(this.IMAGES_BOTTLE[0]);
         this.loadImages(this.IMAGES_BOTTLE);
         this.loadImages(this.IMAGES_SPLASH);
         this.x = x;
         this.y = y;
+        this.direction = direction; 
         this.height = 100;
         this.width = 80;
         this.throw();
@@ -43,13 +44,10 @@ class ThrowableObject extends MovableObject {
         this.speedY = 30;
         this.applyGravity();
         this.throwInterval = setInterval(() => {
-            this.x += 10;
+            this.x += this.direction ? -10 : 10;
         }, 25);
-        if (this.world) {
-            this.world.statusBarBottles.useItem();
-        }
     }
-
+    
     /**
      * Starts the rotation animation for the throwable object.
      */
@@ -63,9 +61,9 @@ class ThrowableObject extends MovableObject {
      * Plays the splash animation and handles the sound effect.
      */
     playSplashAnimation() {
-        this.stopAnimations(); // Stop existing animations
-        this.playGlassBreakSound(); // Play glass break sound
-        this.animateSplash(); // Start splash animation
+        this.stopAnimations(); 
+        this.playGlassBreakSound(); 
+        this.animateSplash(); 
     }
 
     /**

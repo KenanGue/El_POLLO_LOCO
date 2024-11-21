@@ -51,12 +51,12 @@ bindTouchEvent(elementId, stateKey) {
  */
 bindKeyPressEvents() {
     const keyMappings = {
-        39: 'RIGHT', // Arrow Right
-        37: 'LEFT',  // Arrow Left
-        38: 'UP',    // Arrow Up
-        40: 'DOWN',  // Arrow Down
-        32: 'SPACE', // Spacebar
-        68: 'D'      // D key
+        39: 'RIGHT', 
+        37: 'LEFT',  
+        38: 'UP',    
+        40: 'DOWN', 
+        32: 'SPACE', 
+        68: 'D'      
     };
     this.bindKeyEvents(keyMappings);
 }
