@@ -13,20 +13,14 @@ function handleOrientation() {
     const rotateHint = document.getElementById('rotateHint');
     const mobileButtons = document.getElementById('mobileButtons');
     const canvas = document.getElementById('canvas');
-    function updateUI() {
-        if (window.innerWidth < window.innerHeight) {
-            rotateHint.style.display = 'flex'; 
-            mobileButtons.style.display = 'none';
-            canvas.style.display = 'none';
-        } else { 
-            rotateHint.style.display = 'none';
-            mobileButtons.style.display = isTouchDevice() ? 'flex' : 'none';
-            canvas.style.display = 'block';
-        }
-    }
+    const updateUI = () => {
+        const isPortrait = window.innerWidth < window.innerHeight;
+        rotateHint.style.display = isPortrait ? 'flex' : 'none';
+        mobileButtons.style.display = isPortrait ? 'none' : (isTouchDevice() ? 'flex' : 'none');
+        canvas.style.display = isPortrait ? 'none' : 'block';
+    };
     updateUI();
-    window.addEventListener('resize', updateUI);
-    window.addEventListener('orientationchange', updateUI);
+    ['resize', 'orientationchange'].forEach(event => window.addEventListener(event, updateUI));
 }
 
 /**
@@ -129,7 +123,6 @@ function setupSoundButton() {
     if (audioElement) {
         audioElement.muted = isMuted;
     }
-
     soundButton.addEventListener('click', toggleSound);
 }
 
@@ -153,26 +146,44 @@ function toggleSound() {
 }
 
 /**
- * Mutes or unmutes the character’s specific sound effects based on the mute parameter.
+ * Mutes or unmutes the character-specific sounds (e.g., walking, jumping, dead, hurt).
  * @param {boolean} mute - Whether to mute (true) or unmute (false) the character sounds.
  */
-function muteCharacterSounds(mute) {
+function muteCharacterSpecificSounds(mute) {
     const character = world.character;
-    if (!character) {
-        console.error('Character wurde nicht gefunden.');
-        return;
-    }
-    character.walking_sound.muted = mute;
-    character.jumping_sound.muted = mute;
-    character.dead_sound.muted = mute;
-    character.hurt_sound.muted = mute;
-    const gameSounds = world;
-    gameSounds.pickUpBottleSound.muted = mute;
-    gameSounds.pickUpCoinSound.muted = mute;
-    gameSounds.chickenDead.muted = mute;
-    gameSounds.bossChicken.muted = mute;
-    gameSounds.winSound.muted = mute;
-    gameSounds.loseSound.muted = mute;
+    if (!character) return console.error('Character wurde nicht gefunden.');
+    const characterSounds = [
+        character.walking_sound,
+        character.jumping_sound,
+        character.dead_sound,
+        character.hurt_sound,
+    ];
+    characterSounds.forEach(sound => sound.muted = mute);
+}
+
+/**
+ * Mutes or unmutes the game-wide sounds (e.g., bottle pickup, coins, chicken death, boss sounds).
+ * @param {boolean} mute - Whether to mute (true) or unmute (false) the game sounds.
+ */
+function muteGameSounds(mute) {
+    const gameSounds = [
+        world.pickUpBottleSound,
+        world.pickUpCoinSound,
+        world.chickenDead,
+        world.bossChicken,
+        world.winSound,
+        world.loseSound,
+    ];
+    gameSounds.forEach(sound => sound.muted = mute);
+}
+
+/**
+ * Mutes or unmutes all character and game sounds, including throwable object sounds.
+ * @param {boolean} mute - Whether to mute (true) or unmute (false) all sounds.
+ */
+function muteCharacterSounds(mute) {
+    muteCharacterSpecificSounds(mute);
+    muteGameSounds(mute);
     ThrowableObject.muteGlassSound(mute);
 }
 
@@ -201,7 +212,6 @@ function adjustCharacterSoundVolumes() {
  * 
  * Logs an error if the world or its sounds are not initialized.
  */
-
 function adjustWorldSoundVolumes() {
     if (world) {
         if (world.pickUpBottleSound) world.pickUpBottleSound.volume = 0.3;
@@ -233,5 +243,3 @@ function adjustAllSoundVolumes() {
 function backToStart() {
     location.reload();
 }
-
-

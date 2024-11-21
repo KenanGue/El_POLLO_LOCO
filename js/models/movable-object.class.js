@@ -96,7 +96,7 @@ class MovableObject extends DrawableObject {
         this.img = this.imageCache[path];
         this.currentImage++;
     }
-
+    
     /**
      * Moves the object to the right, applying speed.
      */

@@ -25,15 +25,15 @@ class ThrowableObject extends MovableObject {
      * @param {number} y - The initial y-coordinate of the throwable object.
      */
     constructor(x, y) {
-        super().loadImage(this.IMAGES_BOTTLE[0]); 
-        this.loadImages(this.IMAGES_BOTTLE);      
-        this.loadImages(this.IMAGES_SPLASH);       
+        super().loadImage(this.IMAGES_BOTTLE[0]);
+        this.loadImages(this.IMAGES_BOTTLE);
+        this.loadImages(this.IMAGES_SPLASH);
         this.x = x;
         this.y = y;
         this.height = 100;
         this.width = 80;
         this.throw();
-        this.animateRotation(); 
+        this.animateRotation();
     }
 
     /**
@@ -49,28 +49,49 @@ class ThrowableObject extends MovableObject {
             this.world.statusBarBottles.useItem();
         }
     }
-    
+
     /**
      * Starts the rotation animation for the throwable object.
      */
     animateRotation() {
         this.rotationInterval = setInterval(() => {
-            this.playAnimation(this.IMAGES_BOTTLE);  
-        }, 50);  
+            this.playAnimation(this.IMAGES_BOTTLE);
+        }, 50);
     }
 
     /**
-     * Plays the splash animation when the object hits a target, then hides it after the animation ends.
+     * Plays the splash animation and handles the sound effect.
      */
     playSplashAnimation() {
+        this.stopAnimations(); // Stop existing animations
+        this.playGlassBreakSound(); // Play glass break sound
+        this.animateSplash(); // Start splash animation
+    }
+
+    /**
+     * Stops all ongoing animations (rotation and throw).
+     */
+    stopAnimations() {
         clearInterval(this.rotationInterval);
         clearInterval(this.throwInterval);
         this.speedY = 0;
+    }
+
+    /**
+     * Plays the glass break sound if it hasn't been played yet.
+     */
+    playGlassBreakSound() {
         if (!this.hasPlayedGlassSound) {
             ThrowableObject.glassBreakSound.currentTime = 0;
             ThrowableObject.glassBreakSound.play();
             this.hasPlayedGlassSound = true;
         }
+    }
+
+    /**
+     * Animates the splash sequence and hides the object after finishing.
+     */
+    animateSplash() {
         let frameIndex = 0;
         this.splashInterval = setInterval(() => {
             if (frameIndex < this.IMAGES_SPLASH.length) {
@@ -80,14 +101,14 @@ class ThrowableObject extends MovableObject {
                 clearInterval(this.splashInterval);
                 this.isVisible = false;
             }
-        }, 100); 
+        }, 100);
     }
 
-     /**
-     * Mutes or unmutes the glass break sound.
-     * @param {boolean} mute - Whether to mute (true) or unmute (false) the sound.
-     */
-     static muteGlassSound(mute) {
+    /**
+    * Mutes or unmutes the glass break sound.
+    * @param {boolean} mute - Whether to mute (true) or unmute (false) the sound.
+    */
+    static muteGlassSound(mute) {
         ThrowableObject.glassBreakSound.muted = mute;
     }
 }

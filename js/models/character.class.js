@@ -248,4 +248,9 @@ class Character extends MovableObject {
         this.character = new Character(this);
     }
 
+    setWorld() {
+        this.character.world = this;
+    }
+    
+
 }

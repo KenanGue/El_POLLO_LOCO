@@ -13,6 +13,7 @@ body {
     background-image: url('img/desert.png');
     background-position: center;
     font-family: 'western';
+    background-size: cover;
 }
 
 h1 {

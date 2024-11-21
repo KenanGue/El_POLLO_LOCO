@@ -36,6 +36,7 @@ class World {
         this.canvas = canvas;
         this.keyboard = keyboard;
         this.introOutro = new Intro_Outro(canvas, this.ctx);
+        this.collisionHandler = new CollisionHandler(this);
         this.createCoins();
         this.createBottles();
         this.draw();
@@ -52,7 +53,7 @@ class World {
         this.showingGameOverScreen = true;
         this.loseSound.play();
         setTimeout(() => {
-            this.muteAllSoundsExceptGameOver();
+            this.muteAllSounds(false);
         }, 1000);
     }
 
@@ -66,56 +67,37 @@ class World {
         this.showingWinScreen = true;
         this.winSound.play();
         setTimeout(() => {
-            this.muteAllSoundsExceptWin();
+            this.muteAllSounds(true);
         }, 2000);
     }
 
     /**
-     * Mutes all game sounds except the win sound.
-    */
-    muteAllSoundsExceptWin() {
+   * Mutes all sounds in the game except for a specified sound.
+   * @param {boolean} isWinSound - If true, mutes all sounds except the win sound; otherwise, the game-over sound.
+   */
+    muteAllSounds(isWinSound) {
+        const targetSound = isWinSound ? this.winSound : this.loseSound;
         if (isMuted) {
-            muteCharacterSounds(true);
-            adjustWorldSoundVolumes();
-            const backgroundAudio = document.getElementById('backgroundAudio');
-            if (backgroundAudio) {
-                backgroundAudio.muted = true;
-            }
-            this.winSound.muted = true;
+            this.applyMuteSettings(targetSound, true);
             return;
         }
         isMuted = true;
-        muteCharacterSounds(true);
-        adjustWorldSoundVolumes();
-        const backgroundAudio = document.getElementById('backgroundAudio');
-        if (backgroundAudio) {
-            backgroundAudio.muted = true;
-        }
-        this.winSound.muted = false;
+        this.applyMuteSettings(targetSound, false);
     }
 
     /**
-     * Mutes all sounds in the game except for the game-over sound.
-    */
-    muteAllSoundsExceptGameOver() {
-        if (isMuted) {
-            muteCharacterSounds(true);
-            adjustWorldSoundVolumes();
-            const backgroundAudio = document.getElementById('backgroundAudio');
-            if (backgroundAudio) {
-                backgroundAudio.muted = true;
-            }
-            this.loseSound.muted = true;
-            return;
-        }
-        isMuted = true;
+     * Helper function to apply mute settings to game sounds.
+     * @param {Audio} targetSound - The sound to leave unmuted.
+     * @param {boolean} muteTarget - If true, mutes the target sound; otherwise, unmutes it.
+     */
+    applyMuteSettings(targetSound, muteTarget) {
         muteCharacterSounds(true);
         adjustWorldSoundVolumes();
         const backgroundAudio = document.getElementById('backgroundAudio');
         if (backgroundAudio) {
             backgroundAudio.muted = true;
         }
-        this.loseSound.muted = false;
+        targetSound.muted = muteTarget;
     }
 
     /**
@@ -130,7 +112,7 @@ class World {
     */
     run() {
         setInterval(() => {
-            this.checkCollisions();
+            this.collisionHandler.checkCollisions();
             this.checkThrowObjects();
         }, 1000 / 60);
     }
@@ -143,195 +125,6 @@ class World {
             let bottle = new ThrowableObject(this.character.x + 100, this.character.y + 100);
             this.throwableObjects.push(bottle);
             this.statusBarBottles.useItem();
-        }
-    }
-
-    /**
-     * Checks various types of collisions in the game, including enemies, bottles, collectibles, 
-     * and updates the state of the endboss.
-     */
-    checkCollisions() {
-        this.checkEnemyCollisions();
-        this.checkBottleCollisions();
-        this.checkCollectibleCollisions();
-        this.checkEndbossState();
-    }
-
-    /**
-     * Iterates through all enemies in the level and checks for collisions with the character.
-     * Calls specific collision handling for chickens or the endboss.
-     */
-    checkEnemyCollisions() {
-        this.level.enemies.forEach((enemy, enemyIndex) => {
-            if (enemy instanceof Endboss) {
-                this.handleEndbossCollision(enemy);
-            } else if (!enemy.isDead && (enemy instanceof Chicken || enemy instanceof SmallChicken)) {
-                this.handleChickenCollision(enemy, enemyIndex);
-            }
-        });
-    }
-
-    /**
-     * Handles collision logic between the character and the endboss.
-     * Alerts the endboss if the character is nearby and reduces character health on collision.
-     * Displays the game-over screen if the character's energy reaches zero.
-     * 
-     * @param {Endboss} enemy - The endboss object to check for collisions.
-     */
-    handleEndbossCollision(enemy) {
-        enemy.alertIfPlayerNearby(this.character);
-        if (!enemy.isDead() && this.character.isColliding(enemy)) {
-            this.character.hit();
-            this.statusBarHealth.setPercentage(this.character.energy);
-            if (this.character.energy <= 0) {
-                setTimeout(() => {
-                    this.chickenDead.play();
-                    this.showGameOverScreen();
-                }, 1000);
-            }
-        }
-    }
-
-    /**
-     * Handles collision logic between the character and chickens.
-     * Splits the logic into smaller functions for clarity.
-     * 
-     * @param {Chicken|SmallChicken} enemy - The chicken object to check for collisions.
-     * @param {number} enemyIndex - The index of the chicken in the enemy array.
-    */
-    handleChickenCollision(enemy, enemyIndex) {
-        const nearbyChickens = this.getNearbyChickens(enemy);
-        if (this.characterCollidesWithGroup(nearbyChickens)) {
-            const isJumping = this.isCharacterJumpingOnChicken(enemy);
-            if (isJumping) {
-                this.handleChickenJump(nearbyChickens);
-            } else {
-                this.handleChickenHit();
-            }
-        }
-    }
-
-    /**
-     * Retrieves chickens near the specified enemy.
-     * 
-     * @param {Chicken|SmallChicken} enemy - The reference chicken.
-     * @returns {Array} List of nearby chickens.
-     */
-    getNearbyChickens(enemy) {
-        const collisionRadius = 50;
-        return this.level.enemies.filter(e =>
-            (e instanceof Chicken || e instanceof SmallChicken) &&
-            !e.isDead &&
-            Math.abs(e.x - enemy.x) < collisionRadius
-        );
-    }
-
-    /**
-     * Checks if the character collides with any chicken in the group.
-     * 
-     * @param {Array} nearbyChickens - The group of nearby chickens.
-     * @returns {boolean} True if the character collides with any chicken.
-     */
-    characterCollidesWithGroup(nearbyChickens) {
-        return nearbyChickens.some(e => this.character.isColliding(e));
-    }
-
-    /**
-     * Determines if the character is jumping on the chicken.
-     * 
-     * @param {Chicken|SmallChicken} enemy - The chicken being checked.
-     * @returns {boolean} True if the character is jumping on the chicken.
-     */
-    isCharacterJumpingOnChicken(enemy) {
-        return (
-            this.character.speedY < 0 &&
-            this.character.y + this.character.height * 0.8 < enemy.y
-        );
-    }
-
-    /**
-     * Handles logic for when the character jumps on a group of chickens.
-     * 
-     * @param {Array} nearbyChickens - The group of chickens being jumped on.
-     */
-    handleChickenJump(nearbyChickens) {
-        nearbyChickens.forEach(chicken => {
-            chicken.die();
-            chicken.isDead = true;
-            this.character.jump();
-            this.chickenDead.play();
-            setTimeout(() => {
-                const index = this.level.enemies.indexOf(chicken);
-                if (index > -1) this.level.enemies.splice(index, 1);
-            }, 500);
-        });
-    }
-
-    /**
-     * Handles logic for when the character is hit by a chicken.
-     */
-    handleChickenHit() {
-        this.character.hit();
-        this.statusBarHealth.setPercentage(this.character.energy);
-        if (this.character.energy <= 0) {
-            setTimeout(() => {
-                this.showGameOverScreen();
-            }, 1000);
-        }
-    }
-
-    /**
-     * Checks for collisions between throwable bottles and enemies.
-     * Removes the bottle and damages the endboss if a collision occurs.
-     */
-    checkBottleCollisions() {
-        this.throwableObjects.forEach((bottle, bottleIndex) => {
-            this.level.enemies.forEach((enemy) => {
-                if (bottle.isColliding(enemy) && enemy instanceof Endboss && !enemy.isDead()) {
-                    bottle.playSplashAnimation();
-                    enemy.hit();
-                    this.statusBarEndboss.setPercentage(enemy.energy);
-                    setTimeout(() => {
-                        this.throwableObjects.splice(bottleIndex, 1);
-                    }, 1000);
-                }
-            });
-        });
-    }
-
-    /**
-     * Checks for collisions between the character and collectible items like coins or bottles.
-     * Updates the corresponding status bar and plays a sound effect upon collection.
-     */
-    checkCollectibleCollisions() {
-        this.collectibles = this.collectibles.filter(collectible => {
-            if (collectible instanceof CollectibleObjects && collectible.type === 'bottle' && this.character.isColliding(collectible)) {
-                this.statusBarBottles.collectItem();
-                this.pickUpBottleSound.play();
-                return false;
-            }
-            if (collectible instanceof CollectibleObjects && collectible.type === 'coin' && this.character.isColliding(collectible, true)) {
-                this.statusBarCoins.collectItem();
-                this.pickUpCoinSound.play();
-                return false;
-            }
-            return true;
-        });
-    }
-
-    /**
-     * Checks the current state of the endboss.
-     * Displays the win screen if the endboss is defeated and ensures the endboss is drawn on the canvas.
-     */
-    checkEndbossState() {
-        let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
-        if (endboss) {
-            if (endboss.isDead() && !this.showingWinScreen) {
-                setTimeout(() => {
-                    this.showWinScreen();
-                }, 1000);
-            }
-            this.addToMap(endboss);
         }
     }
 

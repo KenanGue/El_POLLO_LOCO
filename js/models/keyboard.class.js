@@ -17,95 +17,65 @@ class Keyboard {
         this.bindBtsPressEvents();
     }
 
-    bindBtsPressEvents() {
-        const mobileLeft = document.getElementById('mobileLeft');
-        const mobileRight = document.getElementById('mobileRight');
-        const mobileUp = document.getElementById('mobileUp');
-        const mobileBottle = document.getElementById('mobileBottle');
-        if (mobileLeft) {
-            mobileLeft.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                this.LEFT = true; 
-            });
-            mobileLeft.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.LEFT = false;
-            });
-        }
-        if (mobileRight) {
-            mobileRight.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                this.RIGHT = true;
-            });
-            mobileRight.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.RIGHT = false;
-            });
-        }
-        if (mobileUp) {
-            mobileUp.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                this.SPACE = true;
-            });
-            mobileUp.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.SPACE = false;
-            });
-        }
-        if (mobileBottle) {
-            mobileBottle.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                this.D = true;
-            });
-            mobileBottle.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                this.D = false;
-            });
-        }
-    }
+   /**
+ * Binds touch events for mobile controls.
+ */
+bindBtsPressEvents() {
+    this.bindTouchEvent('mobileLeft', 'LEFT');
+    this.bindTouchEvent('mobileRight', 'RIGHT');
+    this.bindTouchEvent('mobileUp', 'SPACE');
+    this.bindTouchEvent('mobileBottle', 'D');
+}
 
-    bindKeyPressEvents() {
-        window.addEventListener("keydown", (e) => {
-            if (e.keyCode == 39) {
-                keyboard.RIGHT = true;
-            }
-            if (e.keyCode == 37) {
-                keyboard.LEFT = true;
-            }
-            if (e.keyCode == 38) {
-                keyboard.UP = true;
-            }
-            if (e.keyCode == 40) {
-                keyboard.DOWN = true;
-            }
-            if (e.keyCode == 32) {
-                e.preventDefault();
-                keyboard.SPACE = true;
-            }
-            if (e.keyCode == 68) {
-                keyboard.D = true;
-            }
+/**
+ * Helper function to bind touch events for a specific element and state key.
+ * @param {string} elementId - The ID of the HTML element.
+ * @param {string} stateKey - The state property to modify.
+ */
+bindTouchEvent(elementId, stateKey) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this[stateKey] = true;
         });
-
-        window.addEventListener("keyup", (e) => {
-            if (e.keyCode == 39) {
-                keyboard.RIGHT = false;
-            }
-            if (e.keyCode == 37) {
-                keyboard.LEFT = false;
-            }
-            if (e.keyCode == 38) {
-                keyboard.UP = false;
-            }
-            if (e.keyCode == 40) {
-                keyboard.DOWN = false;
-            }
-            if (e.keyCode == 32) {
-                keyboard.SPACE = false;
-            }
-            if (e.keyCode == 68) {
-                keyboard.D = false;
-            }
+        element.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            this[stateKey] = false;
         });
     }
+}
+
+    /**
+ * Binds key press events for keyboard controls.
+ */
+bindKeyPressEvents() {
+    const keyMappings = {
+        39: 'RIGHT', // Arrow Right
+        37: 'LEFT',  // Arrow Left
+        38: 'UP',    // Arrow Up
+        40: 'DOWN',  // Arrow Down
+        32: 'SPACE', // Spacebar
+        68: 'D'      // D key
+    };
+    this.bindKeyEvents(keyMappings);
+}
+
+/**
+ * Helper function to bind keydown and keyup events based on a mapping.
+ * @param {Object} keyMappings - A mapping of key codes to state properties.
+ */
+bindKeyEvents(keyMappings) {
+    window.addEventListener('keydown', (e) => {
+        if (keyMappings[e.keyCode]) {
+            e.preventDefault();
+            this[keyMappings[e.keyCode]] = true;
+        }
+    });
+    window.addEventListener('keyup', (e) => {
+        if (keyMappings[e.keyCode]) {
+            this[keyMappings[e.keyCode]] = false;
+        }
+    });
+}
 }

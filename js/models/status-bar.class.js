@@ -51,32 +51,73 @@ class StatusBar extends DrawableObject {
     constructor(type, maxItems = 10) {
         super();
         this.type = type;
-        this.maxItems = maxItems; 
-        if (type === 'health') {
-            this.loadImages(this.IMAGES_HEALTH);
-            this.setPercentage(100);  
-            this.x = 40;
-            this.y = 0;  
-        } else if (type === 'coin') {
-            this.loadImages(this.IMAGES_COIN);
-            this.setPercentage(0);  
-            this.x = 40;
-            this.y = 60;  
-        } else if (type === 'bottle') {
-            this.loadImages(this.IMAGES_BOTTLE);
-            this.setPercentage(0);  
-            this.x = 40;
-            this.y = 120; 
-        } else if (type === 'endboss') {
-            this.loadImages(this.IMAGES_ENDBOSS);
-            this.setPercentage(100);  
-            this.x = 480;  
-            this.y = 5;    
+        this.maxItems = maxItems;
+        switch (type) {
+            case 'health':
+                this.setupHealthBar();
+                break;
+            case 'coin':
+                this.setupCoinBar();
+                break;
+            case 'bottle':
+                this.setupBottleBar();
+                break;
+            case 'endboss':
+                this.setupEndbossBar();
+                break;
+            default:
+                throw new Error(`Unknown status bar type: ${type}`);
         }
+    }
+
+    /**
+     * Configures the health bar with appropriate images and position.
+     */
+    setupHealthBar() {
+        this.loadImages(this.IMAGES_HEALTH);
+        this.setPercentage(100);
+        this.x = 40;
+        this.y = 0;
         this.width = 200;
         this.height = 60;
     }
-
+    
+    /**
+     * Configures the coin bar with appropriate images and position.
+     */
+    setupCoinBar() {
+        this.loadImages(this.IMAGES_COIN);
+        this.setPercentage(0);
+        this.x = 40;
+        this.y = 60;
+        this.width = 200;
+        this.height = 60;
+    }
+    
+    /**
+     * Configures the bottle bar with appropriate images and position.
+     */
+    setupBottleBar() {
+        this.loadImages(this.IMAGES_BOTTLE);
+        this.setPercentage(0);
+        this.x = 40;
+        this.y = 120;
+        this.width = 200;
+        this.height = 60;
+    }
+    
+    /**
+     * Configures the endboss health bar with appropriate images and position.
+     */
+    setupEndbossBar() {
+        this.loadImages(this.IMAGES_ENDBOSS);
+        this.setPercentage(100);
+        this.x = 480;
+        this.y = 5;
+        this.width = 200;
+        this.height = 60;
+    }
+    
     /**
      * Increases the current items collected and updates the status bar's display accordingly.
      */
@@ -86,7 +127,6 @@ class StatusBar extends DrawableObject {
             let percentage = (this.currentItems / this.maxItems) * 100;
             this.setPercentage(percentage);  
         }
-        
     }
 
     /**
